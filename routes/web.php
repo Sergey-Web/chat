@@ -12,15 +12,7 @@
 */
 
 Route::get('/', function () {
-    $data = [
-        'event' => 'UserSignedUp',
-        'data'  => [
-            'username' => 'John Doe'
-        ]
-    ];
-    //Redis::publish('test-channel', json_encode($data));
-    event( new \App\Events\TestEventRedis() );
-    //return view('welcome');
+    return view('welcome');
 });
 
 Auth::routes();
