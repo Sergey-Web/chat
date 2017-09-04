@@ -10,20 +10,24 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class TestEventRedis implements ShouldBroadcast
+class ConnectUserChannel implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $username = 'John Doe';
+    public $channel = NULL;
+    public $userId = NULL;
+    public $role = NULL;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($channel, $data)
     {
-        //
+        $this->channel = $channel;
+        $this->userId = $data['userId'];
+        $this->role = $data['role'];
     }
 
     /**
@@ -33,12 +37,12 @@ class TestEventRedis implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        //return new PrivateChannel('test-channel');
-        return ['test-channel'];
+        //return new PrivateChannel('name-channel');
+        return [$this->channel];
     }
 
     public function broadcastAs()
     {
-        return 'message';
+        return 'birdchat';
     }
 }

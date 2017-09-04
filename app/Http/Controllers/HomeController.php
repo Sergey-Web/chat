@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\AuthUserRedis;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 class HomeController extends Controller
 {
@@ -22,9 +24,17 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function admin()
+    {
+        AuthUserRedis::check();
+        dump(Redis::command('smembers', [1]));
+        dump(Redis::command('smembers', [0]));
+        return view('home');
+    }
+
     public function index()
     {
         AuthUserRedis::check();
-        return view('home');
+        return view('welcome');
     }
 }

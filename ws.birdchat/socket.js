@@ -6,9 +6,9 @@ const Redis = require('ioredis');
 
 const redis = new Redis();
 
-redis.subscribe('test-channel');
+redis.psubscribe('*', function(err, count){});
 
-redis.on('message', function(channel, message) {
+redis.on('pmessage', function(pattern, channel, message) {
     console.log(message);
 });
 
