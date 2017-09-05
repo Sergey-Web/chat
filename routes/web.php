@@ -11,8 +11,12 @@
 |
 */
 
-Route::get('/', 'HomeController@admin');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@auth')->name('home');
+Route::get('/', 'HomeController@startPage')
+    ->name('startPage')
+    ->middleware('checkDomain');
+Route::get('/home', 'HomeController@index')
+    ->name('home')
+    ->middleware('auth');

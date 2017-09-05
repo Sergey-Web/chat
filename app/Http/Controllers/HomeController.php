@@ -16,7 +16,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     /**
@@ -24,17 +24,23 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function admin()
+    public function index()
     {
-        AuthUserRedis::check();
-        dump(Redis::command('smembers', [1]));
-        dump(Redis::command('smembers', [0]));
+        AuthUserRedis::login();
+        AuthUserRedis::status();
         return view('home');
     }
 
-    public function index()
+    public function startPage()
     {
-        AuthUserRedis::check();
+        if(Auth::check()){
+            AuthUserRedis::status();
+        } else {
+            $userIp = request()->server('REMOTE_ADDR');
+            AuthUserRedis::status();
+            return view('welcome', compact($userIp));
+        }
         return view('welcome');
     }
+
 }

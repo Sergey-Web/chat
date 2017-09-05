@@ -9,7 +9,9 @@ const redis = new Redis();
 redis.psubscribe('*', function(err, count){});
 
 redis.on('pmessage', function(pattern, channel, message) {
-    console.log(message);
+    let company = [];
+    company.pup();
+    console.log(mes);
 });
 
 server.listen(3000);

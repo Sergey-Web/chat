@@ -10,46 +10,54 @@ use App\Events\ConnectUserChannel;
 
 class AuthUserRedis
 {
-    private static $data = NULL;
+    public static $data = NULL;
     private static $channel = NULL;
     private static $userId = NULL;
     private static $role = NULL;
     private static $room = NULL;
 
-    public static function check()
-    {
-        if(Auth::check()) {
-            self::login();
-        } else {
-            self::logout();
-        }
-    }
-
-    private static function login()
+    public static function login($company = NUll, $userIp = NULL, $role = 'user')
     {
         if(self::$data == NULL) {
-            $userObj = User::find(Auth::id());
-            self::$channel = $userObj->company->first()->name;
-            self::$userId = Auth::id();
-            self::$role = $userObj->role->first()->role;
-            self::$room = FALSE;
+            if(Auth::check()) {
+                $userObj = User::find(Auth::id());
+                self::$channel = $userObj->company->first()->name;
+                self::$userId = Auth::id();
+                self::$role = $userObj->role->first()->role;
+                self::$room = FALSE;
+            } else {
+                self::$channel = $company;
+                self::$userId = $userIp;
+                self::$role = $role;
+            }
+
             $data = [
                 'userId' => self::$userId,
-                'role'   => self::$role
+                'role'   => self::$role,
+
             ];
             self::$data = $data;
+            self::addUserCompanyRedis();
         }
-
-        self::addUserCompanyRedis();
 
         return self::$data;
     }
 
-    private static function logout()
+    public static function logout()
     {
+        if(self::$data == NULL) {
+           AuthUserRedis::login();
+        }
+
         Redis::command('srem', [self::$channel, self::$userId]);
         Redis::command('srem', [self::$role, self::$userId]);
         //self::dropUserCompanyRedis();
+    }
+
+    public static function status()
+    {
+        dump(['company_'.self::$channel => Redis::command('smembers', [self::$channel])]);
+        dump(['role_'.self::$role => Redis::command('smembers', [self::$role])]);
     }
 
     private static function addUserCompanyRedis()
@@ -59,9 +67,9 @@ class AuthUserRedis
         self::connectUserChannel(self::$channel, self::$data);
     }
 
-    private static function dropUserCompanyRedis(){
-
-        self::disconnectUserChannel(self::$channel, self::$data);
+    private static function dropUserCompanyRedis($channel, $data)
+    {
+        //self::disconnectUserChannel(self::$channel, self::$data);
     }
 
     private static function connectUserChannel($channel, $data)

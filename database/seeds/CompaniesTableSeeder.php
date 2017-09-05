@@ -14,22 +14,22 @@ class CompaniesTableSeeder extends Seeder
     {
         Company::create([
             'name'   => 'com1',
-            'domain' => 'dom1'
+            'domain' => 'com1'
         ]);
 
         Company::create([
             'name'   => 'com2',
-            'domain' => 'dom2'
+            'domain' => 'com2'
         ]);
 
         Company::create([
             'name'   => 'com3',
-            'domain' => 'dom3'
+            'domain' => 'com3'
         ]);
 
         Company::create([
             'name'   => 'com4',
-            'domain' => 'dom4'
+            'domain' => 'com4'
         ]);
     }
 }
