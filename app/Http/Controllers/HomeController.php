@@ -28,19 +28,14 @@ class HomeController extends Controller
     {
         AuthUserRedis::login();
         AuthUserRedis::status();
-        return view('home');
+        $data = AuthUserRedis::$data;
+        return view('home', ['data'=>$data]);
     }
 
     public function startPage()
     {
-        if(Auth::check()){
-            AuthUserRedis::status();
-        } else {
-            $userIp = request()->server('REMOTE_ADDR');
-            AuthUserRedis::status();
-            return view('welcome', compact($userIp));
-        }
-        return view('welcome');
-    }
+        $data = AuthUserRedis::$data;
 
+        return view('welcome', ['data'=>$data]);
+    }
 }

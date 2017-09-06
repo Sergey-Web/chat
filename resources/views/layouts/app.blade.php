@@ -78,11 +78,16 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+    @if( isset($data) )
     <script>
         const socket = io(':3000');
-        socket.on('channel:agent', function(data) {
+        const channel = '{{ $data['channel'] }}';
+        const role = {{ $data['role'] }};
+
+        socket.on(channel + ':' + role, function(data) {
             console.log(data);
         });
     </script>
+    @endif
 </body>
 </html>

@@ -23,9 +23,9 @@ class ConnectUserChannel implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($channel, $data)
+    public function __construct($data)
     {
-        $this->channel = $channel;
+        $this->channel = $data['channel'];
         $this->userId = $data['userId'];
         $this->role = $data['role'];
     }

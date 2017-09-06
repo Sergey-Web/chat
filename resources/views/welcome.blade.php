@@ -87,13 +87,25 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
-
-                <button class="btn btn-primary">Open Chat</button>
+                @if( $data )
+                <button class="btn btn-primary" id="connectChat">Open Chat</button>
+                @endif
 
             </div>
         </div>
+        @if( isset($data) )
         <script>
-            //var socket = io(':3000');
+            const socket = io(':3000');
+            const connChat = document.getElementById('connectChat');
+            const channel = '{{ $data['channel'] }}';
+            const role = {{ $data['role'] }};
+ 
+            if(connChat) {
+                connChat.addEventListener('click', function( event ) {
+                    socket.emit(channel + ':' + role, {connect: 'connect'});
+                });
+            }
         </script>
+        @endif
     </body>
 </html>
