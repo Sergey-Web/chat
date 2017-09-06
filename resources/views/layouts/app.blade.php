@@ -12,6 +12,8 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
 </head>
 <body>
     <div id="app">
@@ -76,5 +78,11 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        const socket = io(':3000');
+        socket.on('channel:agent', function(data) {
+            console.log(data);
+        });
+    </script>
 </body>
 </html>
