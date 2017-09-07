@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\CheckDBRedis;
 use App\Company;
 use App\AuthUserRedis;
 
@@ -18,9 +19,9 @@ class CheckDomain
      */
     public function handle(Request $request, Closure $next)
     {
-        $domain = $this->getDomain();
-        $subdomain = $this->getSubdomain($request, $domain);
-        $userIp = $this->getIpUser();
+        $domain = CheckDBRedis::getDomain();
+        $subdomain = CheckDBRedis::getSubdomain();
+        $userIp = CheckDBRedis::$userId;
 
         if($domain != $subdomain) {
             $company = Company::where('domain', $subdomain)->first();
@@ -33,23 +34,4 @@ class CheckDomain
 
         return $next($request);
     }
-
-    private function getDomain()
-    {
-        $domain = str_replace('\\', '', preg_quote(env('APP_DOMAIN', 'chat.dev')));
-        return $domain;
-    }
-
-    private function getSubdomain($request, $domain)
-    {
-        $subdomain = preg_replace('/\.' . $domain . '$/s', '', $request->getHttpHost());
-        return $subdomain;
-    }
-
-    private function getIpUser()
-    {
-        $userIp = request()->server('REMOTE_ADDR');
-        return $userIp;
-    }
-
 }

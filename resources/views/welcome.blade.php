@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <!-- CSRF Token -->
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="csrf-token" content="{{ csrf_token() }}">  
 
         <title>{{ config('app.name', 'Laravel') }}</title>
         <title>Laravel</title>
@@ -87,25 +87,38 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
-                @if( $data )
                 <button class="btn btn-primary" id="connectChat">Open Chat</button>
-                @endif
 
             </div>
         </div>
-        @if( isset($data) )
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script>
+            $(document).ready(function(){
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                $('#connectChat').on('click', function(){
+                    $.ajax({
+                        type: "POST",
+                        url: "/connectChat",
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                });
+            });
+        </script>
+        <!-- <script>
             const socket = io(':3000');
             const connChat = document.getElementById('connectChat');
-            const channel = '{{ $data['channel'] }}';
-            const role = {{ $data['role'] }};
- 
+         
             if(connChat) {
                 connChat.addEventListener('click', function( event ) {
                     socket.emit(channel + ':' + role, {connect: 'connect'});
                 });
             }
-        </script>
-        @endif
+        </script> -->
     </body>
 </html>

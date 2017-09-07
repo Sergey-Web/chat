@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\AuthUserRedis;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redis;
 
@@ -34,8 +35,7 @@ class HomeController extends Controller
 
     public function startPage()
     {
-        $data = AuthUserRedis::$data;
-
-        return view('welcome', ['data'=>$data]);
+        Redis::flushall();
+        return view('welcome');
     }
 }

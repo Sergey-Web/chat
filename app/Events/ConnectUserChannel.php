@@ -27,7 +27,7 @@ class ConnectUserChannel implements ShouldBroadcast
     {
         $this->channel = $data['channel'];
         $this->userId = $data['userId'];
-        $this->role = $data['role'];
+        $this->role = isset($data['role']) ? $data['role'] : 4;
     }
 
     /**

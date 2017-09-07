@@ -24,9 +24,8 @@ redis.on('pmessage', function(pattern, channel, message) {
     let parseMessage = JSON.parse(message);
     let role = parseMessage.data.role;
     let userId = parseMessage.data.userId;
-
     if(role == 4) {
-        io.emit(channel+':'+3, {connect: userId});
+        io.emit(channel + ':' + 3, {connect: userId});
     }
     console.log(parseMessage.data);
 });

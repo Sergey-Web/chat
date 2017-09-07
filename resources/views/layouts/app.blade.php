@@ -78,7 +78,6 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
-    @if( isset($data) )
     <script>
         const socket = io(':3000');
         const channel = '{{ $data['channel'] }}';
@@ -87,7 +86,16 @@
         socket.on(channel + ':' + role, function(data) {
             console.log(data);
         });
+
+        $('#connectChat').on('click', function(){
+            $.ajax({
+                type: "POST",
+                url: "/connectUserAdmin",
+                success: function(data){
+                    console.log(data);
+                }
+            });
+        });
     </script>
-    @endif
 </body>
 </html>

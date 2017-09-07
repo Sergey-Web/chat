@@ -20,3 +20,4 @@ Route::get('/', 'HomeController@startPage')
 Route::get('/home', 'HomeController@index')
     ->name('home')
     ->middleware('auth');
+Route::post('/connectChat', 'UserAjaxController@connectUserChat');
