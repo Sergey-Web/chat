@@ -27,15 +27,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-        AuthUserRedis::login();
-        AuthUserRedis::status();
-        $data = AuthUserRedis::$data;
-        return view('home', ['data'=>$data]);
+        return view('home');
     }
 
     public function startPage()
     {
-        Redis::flushall();
         return view('welcome');
     }
 }

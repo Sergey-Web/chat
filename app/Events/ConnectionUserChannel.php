@@ -10,13 +10,14 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ConnectUserChannel implements ShouldBroadcast
+class ConnectionUserChannel implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $channel = NULL;
     public $userId = NULL;
-    public $role = NULL;
+    public $agent = NULL;
+    public $role = 4;
 
     /**
      * Create a new event instance.
@@ -27,7 +28,7 @@ class ConnectUserChannel implements ShouldBroadcast
     {
         $this->channel = $data['channel'];
         $this->userId = $data['userId'];
-        $this->role = isset($data['role']) ? $data['role'] : 4;
+        $this->agent = $data['agent'];
     }
 
     /**

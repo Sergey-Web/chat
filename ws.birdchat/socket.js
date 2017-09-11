@@ -8,22 +8,15 @@ const redis = new Redis();
 
 redis.psubscribe('*', function(err, count){});
 
-/**
- * @param  {
- *      [role: 
- *          1 - superadmin
- *          2 - admin
- *          3 - agent
- *          4 - user
- *      ],
- *      [company: id]
- *  }
- * @return {[type]}
- */
 redis.on('pmessage', function(pattern, channel, message) {
     let parseMessage = JSON.parse(message);
     let role = parseMessage.data.role;
+    let agentId = parseMessage.data.agent;
     let userId = parseMessage.data.userId;
+
+    if(!agentId && role == 4) {
+        io.emit(channel + ':' + 3, {invite: userId});
+    }
     if(role == 4) {
         io.emit(channel + ':' + 3, {connect: userId});
     }

@@ -87,7 +87,8 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
-                <button class="btn btn-primary" id="connectChat">Open Chat</button>
+                <textarea name="message" id="textMessage" cols="30" rows="10" value="text message"></textarea>
+                <button class="btn btn-primary" id="sendMessage">Send message</button>
 
             </div>
         </div>
@@ -99,26 +100,28 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
-                $('#connectChat').on('click', function(){
-                    $.ajax({
-                        type: "POST",
-                        url: "/connectChat",
-                        success: function(data){
+                $.ajax({
+                    type: "POST",
+                    url: "/connectUser",
+                    success: function(data){
+                        console.log(data);
+                        /*socket.on(channel + ':' + role, function(data) {
                             console.log(data);
-                        }
-                    });
+                        });*/
+                        $('#sendMessage').on('click', function() {
+                            var $textMessage = $('#textMessage').val();
+                            $.ajax({
+                                type: "POST",
+                                url: "/userSendMessage",
+                                data: JSON.stringify($textMessage),
+                                success: function(data){
+                                    console.log(data);
+                                }
+                            })
+                        });
+                    }
                 });
             });
         </script>
-        <!-- <script>
-            const socket = io(':3000');
-            const connChat = document.getElementById('connectChat');
-         
-            if(connChat) {
-                connChat.addEventListener('click', function( event ) {
-                    socket.emit(channel + ':' + role, {connect: 'connect'});
-                });
-            }
-        </script> -->
     </body>
 </html>

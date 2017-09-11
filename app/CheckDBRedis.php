@@ -21,29 +21,14 @@ class CheckDBRedis extends Model
         $userId = self::$userId;
         if(empty($userId)) {
             $userId = self::getIpUser();
-            self::createChat($userId);
         }
 
         return $userId;
     }
 
-    public static function statusCompany($company)
-    {
-
-    }
-
-    public static function statusRole($role)
-    {
-
-    }
-
     private static function getIpUser() {
         $userIp = request()->server('REMOTE_ADDR');
         return $userIp;
-    }
-
-    private static function createChat($userId) {
-        Redis::command('set', [$userId, '']);
     }
 
     public static function getDomain()

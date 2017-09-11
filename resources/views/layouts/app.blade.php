@@ -79,22 +79,35 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
-        const socket = io(':3000');
-        const channel = '{{ $data['channel'] }}';
-        const role = {{ $data['role'] }};
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
-        socket.on(channel + ':' + role, function(data) {
-            console.log(data);
+        $.ajax({
+            type: "POST",
+            url: "/connectAgent",
+            success: function(dataAgent) {
+                if(dataAgent !== 'false') {
+                    var status = dataAgent.status;
+                    var channel = dataAgent.channel;
+                    var socket = io(':3000');
+
+                    if(status !== 'on') {
+                        socket.on(channel + ':' + status, function(data) {
+                            console.log(data);
+                        });
+                    } else {
+                        socket.on(channel + ':' + 4, function(data) {
+                            console.log(data);
+                        });
+                    }
+                }
+            }
         });
 
         $('#connectChat').on('click', function(){
-            $.ajax({
-                type: "POST",
-                url: "/connectUserAdmin",
-                success: function(data){
-                    console.log(data);
-                }
-            });
         });
     </script>
 </body>
