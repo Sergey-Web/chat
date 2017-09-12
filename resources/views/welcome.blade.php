@@ -87,7 +87,7 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
-                <textarea name="message" id="textMessage" cols="30" rows="10" value="text message"></textarea>
+                <textarea name="message" id="textMessage" cols="30" rows="10"></textarea>
                 <button class="btn btn-primary" id="sendMessage">Send message</button>
 
             </div>
@@ -104,16 +104,19 @@
                     type: "POST",
                     url: "/connectUser",
                     success: function(data){
-                        console.log(data);
+                        var $channel = data.channel;
+                        var $userId = data.userId;
+                        var $agent = data.agent;
                         /*socket.on(channel + ':' + role, function(data) {
                             console.log(data);
                         });*/
                         $('#sendMessage').on('click', function() {
                             var $textMessage = $('#textMessage').val();
+                            var $messages = {'userId': $textMessage};
                             $.ajax({
                                 type: "POST",
                                 url: "/userSendMessage",
-                                data: JSON.stringify($textMessage),
+                                data: $messages,
                                 success: function(data){
                                     console.log(data);
                                 }

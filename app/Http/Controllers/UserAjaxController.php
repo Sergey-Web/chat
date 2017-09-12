@@ -44,6 +44,11 @@ class UserAjaxController extends Controller
         return $data;
     }
 
+    public function sendMessage()
+    {
+        return request()->all();
+    }
+
     private function _isConnected()
     {
         $agentId = Redis::command('get', [$this->connectionId]);

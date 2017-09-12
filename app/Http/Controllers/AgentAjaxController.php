@@ -31,6 +31,11 @@ class AgentAjaxController extends Controller
         return $data;
     }
 
+    public function sendMessage()
+    {
+        
+    }
+
     private function getDateDBRedis()
     {
         $userId = $this->userId;
