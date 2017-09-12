@@ -22,6 +22,7 @@ class AuthUserRedis
         if(self::$_data == NULL) {
             if(Auth::check()) {
                 $userObj = User::find(Auth::id());
+
                 self::$_channel = $userObj->company->first()->domain;
                 self::$_userId = Auth::id();
                 self::$_role = $userObj->role->first()->id;
@@ -83,7 +84,4 @@ class AuthUserRedis
 
         return true;
     }
-
-    private function __constract(){}
-    private function __clone(){}
 }

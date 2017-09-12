@@ -72,7 +72,6 @@
                 </div>
             </div>
         </nav>
-
         @yield('content')
     </div>
 
@@ -86,29 +85,44 @@
         });
 
         $.ajax({
-            type: "POST",
-            url: "/connectAgent",
+            type: 'POST',
+            url: '/connectAgent',
             success: function(dataAgent) {
                 if(dataAgent !== 'false') {
                     var status = dataAgent.status;
                     var channel = dataAgent.channel;
+                    var role = dataAgent.role;
+                    var invitations = dataAgent.invitations;
                     var socket = io(':3000');
 
-                    if(status !== 'on') {
+                    console.log(dataAgent);
+                    if(status === 'on') {
+                        socket.on(channel + ':' + role, function(data) {
+                            console.log(data);
+                            $('#connectChat').css({'display': 'block'});
+                        });
+                        if(invitations > 0) {
+                            $('#connectChat').css({'display': 'block'});
+                        }
+                    } else {
                         socket.on(channel + ':' + status, function(data) {
                             console.log(data);
                         });
-                    } else {
-                        socket.on(channel + ':' + 4, function(data) {
-                            console.log(data);
-                        });
                     }
+
+                    $('#connectChat').on('click', function(){
+                        $.ajax({
+                            type: 'POST',
+                            url: '/connectAgentUser',
+                            success: function(data) {
+                                console.log(data);
+                            }
+                        });
+                    });
                 }
             }
         });
 
-        $('#connectChat').on('click', function(){
-        });
     </script>
 </body>
 </html>

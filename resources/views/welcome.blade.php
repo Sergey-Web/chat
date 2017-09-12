@@ -112,13 +112,17 @@
                         });*/
                         $('#sendMessage').on('click', function() {
                             var $textMessage = $('#textMessage').val();
-                            var $messages = {'userId': $textMessage};
+                            var $messages = {
+                                    'messages': $textMessage, 
+                                    'channel': $channel,
+                                    'userId': $userId
+                                 };
                             $.ajax({
                                 type: "POST",
                                 url: "/userSendMessage",
                                 data: $messages,
                                 success: function(data){
-                                    console.log(data);
+                                    $('#textMessage').val('');
                                 }
                             })
                         });

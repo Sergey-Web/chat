@@ -24,3 +24,4 @@ Route::post('/connectUser', 'UserAjaxController@connectUser');
 Route::post('/userSendMessage', 'UserAjaxController@sendMessage');
 Route::post('/connectAgent', 'AgentAjaxController@connectAgent');
 Route::post('/agentSendMessage', 'AgentAjaxController@sendMessage');
+Route::post('/connectAgentUser', 'AgentAjaxController@connectAgentUser');

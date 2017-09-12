@@ -33,20 +33,42 @@ class UserAjaxController extends Controller
 
         $userId = $this->userId;
         $subdomain = $this->subdomain;
+        $messages = $this->_getMessage();
         $data = [
-            'channel' => $subdomain,
-            'userId'  => $userId,
-            'agent'   => ''
+            'channel'  => $subdomain,
+            'userId'   => $userId,
+            'messages' => $messages,
+            'agent'    => '',
         ];
-
-        Event::fire( new ConnectionUserChannel($data) );
 
         return $data;
     }
 
-    public function sendMessage()
+    public function sendMessage(Request $request)
     {
-        return request()->all();
+        $this->_saveMessageRedis($request->all());
+        $data = $this->connectUser();
+        $this->_saveInvite();
+
+        Event::fire( new ConnectionUserChannel($data) );
+
+        //return $request->all();
+    }
+
+    private function _saveMessageRedis($messages)
+    {
+        $isMessages = $this->_getMessage();
+        if($isMessages) {
+            Redis::command('set', [
+                    $messages['userId'] . '_messages', $isMessages . "\n" . $messages['messages'] 
+                ]
+            );
+        } else {
+            Redis::command('set', [
+                    $messages['userId'] . '_messages', $messages['messages'] 
+                ]
+            );
+        }
     }
 
     private function _isConnected()
@@ -73,5 +95,12 @@ class UserAjaxController extends Controller
         $messages = Redis::command('get', [$messageId]);
 
         return $messages;
+    }
+
+    private function _saveInvite()
+    {
+        $company = $this->subdomain;
+        $userId = $this->userId;
+        Redis::command('sadd', [$company . '_invite', $userId]);
     }
 }
