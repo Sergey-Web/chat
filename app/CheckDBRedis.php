@@ -12,7 +12,7 @@ class CheckDBRedis extends Model
 
     public function __construct()
     {
-        $userId = self::getIpUser();
+        $userId = self::_getIpUser();
         self::$userId = Redis::command('get', [$userId]);
     }
 
@@ -20,13 +20,13 @@ class CheckDBRedis extends Model
     {
         $userId = self::$userId;
         if(empty($userId)) {
-            $userId = self::getIpUser();
+            $userId = self::_getIpUser();
         }
 
         return $userId;
     }
 
-    private static function getIpUser() {
+    private static function _getIpUser() {
         $userIp = request()->server('REMOTE_ADDR');
         return $userIp;
     }

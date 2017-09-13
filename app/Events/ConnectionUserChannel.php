@@ -14,9 +14,10 @@ class ConnectionUserChannel implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $channel = NULL;
-    public $userId = NULL;
-    public $agent = NULL;
+    public $channel;
+    public $userId;
+    public $agent;
+    public $messages;
     public $role = 4;
 
     /**
@@ -29,6 +30,7 @@ class ConnectionUserChannel implements ShouldBroadcast
         $this->channel = $data['channel'];
         $this->userId = $data['userId'];
         $this->agent = $data['agent'];
+        $this->messages = $data['messages'];
     }
 
     /**

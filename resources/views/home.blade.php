@@ -4,7 +4,8 @@
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <button class="btn btn-danger" id="connectChat" style="display: none;">Connect</button>
+            <button class="btn btn-success" id="connectChat" style="display: none;">Connect</button>
+            <button class="btn btn-danger" id="disconnectChat" style="display: none;">Disconnect</button>
             <div class="panel panel-default">
                 <div class="panel-heading">Dashboard</div>
                 <div class="panel-body">

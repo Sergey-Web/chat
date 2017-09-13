@@ -22,15 +22,8 @@ class UserAjaxController extends Controller
         $this->subdomain = CheckDBRedis::getSubdomain();
     }
 
-    public function connectUser()
+    private function _getDataUser()
     {
-        $isConnected = $this->_isConnected();
-
-        if($isConnected) {
-            Event::fire( new ConnectionUserAgent($isConnected) );
-            return;
-        }
-
         $userId = $this->userId;
         $subdomain = $this->subdomain;
         $messages = $this->_getMessage();
@@ -44,15 +37,29 @@ class UserAjaxController extends Controller
         return $data;
     }
 
+    public function connectUser()
+    {
+        $isConnected = $this->_isConnected();
+
+        if($isConnected) {
+            Event::fire( new ConnectionUserAgent($isConnected) );
+            return $isConnected;
+        }
+
+        $data = $this->_getDataUser();
+
+        return $data;
+    }
+
     public function sendMessage(Request $request)
     {
         $this->_saveMessageRedis($request->all());
-        $data = $this->connectUser();
+        $data = $this->_getDataUser();
         $this->_saveInvite();
 
         Event::fire( new ConnectionUserChannel($data) );
 
-        //return $request->all();
+        return $request->all();
     }
 
     private function _saveMessageRedis($messages)
@@ -78,9 +85,9 @@ class UserAjaxController extends Controller
             $messages = $this->_getMessage();
             $data = [
                 'userId'  => $this->userId,
-                'channel' => $subdomain,
+                'channel' => $this->subdomain,
                 'agent'   => $agentId,
-                'message' => $messages
+                'messages' => $messages
             ];
 
             return $data;

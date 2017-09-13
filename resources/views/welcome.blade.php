@@ -87,7 +87,7 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
-                <textarea name="message" id="textMessage" cols="30" rows="10"></textarea>
+                <textarea name="message" id="textMessage" cols="30" rows="10" style="width:100%"></textarea>
                 <button class="btn btn-primary" id="sendMessage">Send message</button>
 
             </div>
@@ -122,9 +122,10 @@
                                 url: "/userSendMessage",
                                 data: $messages,
                                 success: function(data){
+                                    console.log(data);
                                     $('#textMessage').val('');
                                 }
-                            })
+                            });
                         });
                     }
                 });
