@@ -88,6 +88,7 @@
             type: 'POST',
             url: '/connectAgent',
             success: function(dataAgent) {
+                    console.log(dataAgent);
                 if(dataAgent !== 'false') {
                     var status = dataAgent.status;
                     var channel = dataAgent.channel;
@@ -95,7 +96,6 @@
                     var invitations = dataAgent.invitations;
                     var socket = io(':3000');
 
-                    console.log(dataAgent);
                     if(status === 'on') {
                         socket.on(channel + ':' + role, function(data) {
                             console.log(data);

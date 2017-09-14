@@ -19,9 +19,11 @@ class AgentAjaxController extends Controller
     {
         $this->userId = Auth::id();
         $dataAgentRedis = $this->_getDataAgent();
-        if($dataAgentRedis['status'] != 'on') {
-            return;
+
+        if($dataAgentRedis && $dataAgentRedis['status'] != 'on') {
+            return $dataAgentRedis;
         }
+
         $dataAgent = AuthUserRedis::login();
 
         if(!$dataAgent) {
@@ -32,14 +34,7 @@ class AgentAjaxController extends Controller
 
         $this->invitations = $this->_checkInvitations();
 
-        $data = [
-            'channel'     => $this->channel,
-            'role'        => $this->role,
-            'status'      => $this->status,
-            'invitations' => $this->invitations
-        ];
-
-        return $data;
+        return $dataAgent;
     }
 
     public function connectAgentUser()
