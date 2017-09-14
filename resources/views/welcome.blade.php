@@ -104,6 +104,7 @@
                     type: "POST",
                     url: "/connectUser",
                     success: function(data){
+                        console.log(data);
                         var $channel = data.channel;
                         var $userId = data.userId;
                         var $agent = data.agent;

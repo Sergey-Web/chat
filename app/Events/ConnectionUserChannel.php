@@ -19,6 +19,7 @@ class ConnectionUserChannel implements ShouldBroadcast
     public $agent;
     public $messages;
     public $role = 4;
+    public $name;
 
     /**
      * Create a new event instance.

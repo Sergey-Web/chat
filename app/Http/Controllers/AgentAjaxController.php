@@ -13,7 +13,7 @@ class AgentAjaxController extends Controller
     public $userId;
     public $channel;
     public $status;
-    public $invitations;
+
 
     public function connectAgent()
     {
@@ -24,17 +24,12 @@ class AgentAjaxController extends Controller
             return $dataAgentRedis;
         }
 
+
         $dataAgent = AuthUserRedis::login();
-
-        if(!$dataAgent) {
-            return 'false';
-        }
-
-        $this->_getDateDBRedis($this->userId);
-
-        $this->invitations = $this->_checkInvitations();
-
-        return $dataAgent;
+        $data = !empty($this->_getDateDBRedis($this->userId)) ? 
+            $this->_getDateDBRedis($this->userId) : 
+                $dataAgent;
+        return $data;
     }
 
     public function connectAgentUser()
@@ -50,17 +45,42 @@ class AgentAjaxController extends Controller
         return $this->changeStatus($pickUpInvite);
     }
 
-    public function sendMessage($pickUpInvite)
+    public function sendMessage()
     {
-        
+        $this->userId = Auth::id();
+        $userId = $this->_getDataAgent()['status'];
+        $getMessages = $this->_getMessages($userId);
+
+        return $getMessages;
+    }
+
+    private function _getMessages($userId)
+    {
+        $getMessages = Redis::command('get', [$userId . '_messages']);
+        return $getMessages;
     }
 
     private function _getDateDBRedis($userId)
     {
-        $dataUser = json_decode(Redis::command('get', [$userId]));
-        $this->channel = $dataUser->channel;
-        $this->status = $dataUser->status;
-        $this->role = $dataUser->role;
+        $dataUser = json_decode(Redis::command('get', [$userId]), true);
+
+        if($dataUser) {
+            $this->channel = $dataUser['channel'];
+            $this->status = $dataUser['status'];
+            $this->role = $dataUser['role'];
+        }
+
+        $invitations = $this->_checkInvitations();
+
+        if($invitations) {
+            $data = [
+                'channel'     => $this->channel,
+                'status'      => $this->status,
+                'role'        => $this->role,
+                'invitations' => $invitations
+            ];
+            return $data;
+        }
 
         return $dataUser;
     }
@@ -71,12 +91,6 @@ class AgentAjaxController extends Controller
         $invitations = Redis::command('scard', [$company . '_invite']);
 
         return $invitations;
-    }
-
-    private function _checkStatusAgent()
-    {
-       $dataAgent = $this->_getDataAgent();
-       return $dataAgent['status'];
     }
 
     private function _pickUpInvite()

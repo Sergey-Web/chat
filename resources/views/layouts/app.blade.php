@@ -88,14 +88,14 @@
             type: 'POST',
             url: '/connectAgent',
             success: function(dataAgent) {
-                    console.log(dataAgent);
                 if(dataAgent !== 'false') {
+                    var userId = dataAgent.userId;
                     var status = dataAgent.status;
                     var channel = dataAgent.channel;
                     var role = dataAgent.role;
                     var invitations = dataAgent.invitations;
                     var socket = io(':3000');
-
+                    console.log(dataAgent);
                     if(status === 'on') {
                         socket.on(channel + ':' + role, function(data) {
                             console.log(data);
@@ -105,7 +105,10 @@
                             $('#connectChat').css({'display': 'block'});
                         }
                     } else {
-                        socket.on(channel + ':' + status, function(data) {
+                        $('#connectChat').css({'display': 'none'});
+                        $('#disconnectChat').css({'display': 'block'});
+                        $('.form-send-message').css({'display': 'block'});
+                        socket.on(status + ':' + userId, function(data) {
                             console.log(data);
                         });
                     }
@@ -114,6 +117,19 @@
                         $.ajax({
                             type: 'POST',
                             url: '/connectAgentUser',
+                            success: function(data) {
+                                $('#connectChat').css({'display': 'none'});
+                                $('#disconnectChat').css({'display': 'block'});
+                                $('.form-send-message').css({'display': 'block'});
+                                console.log(data);
+                            }
+                        });
+                    });
+
+                    $('#sendMessage').on('click', function(){
+                        $.ajax({
+                            type: 'POST',
+                            url: '/agentSendMessage',
                             success: function(data) {
                                 console.log(data);
                             }
