@@ -12,10 +12,10 @@ class AuthUserRedis
 {
     private static $_data = NULL;
     private static $_channel = NULL;
-    public static $userId = NULL;
+    public static $_agentId = NULL;
     private static $_role = NULL;
     private static $_name = NULL;
-    private static $_status = NULL;
+    private static $_userId = NULL;
 
     public static function login()
     {
@@ -24,20 +24,20 @@ class AuthUserRedis
                 $userObj = User::find(Auth::id());
 
                 self::$_channel = $userObj->company->first()->domain;
-                self::$userId = Auth::id();
+                self::$_agentId = Auth::id();
                 self::$_role = $userObj->role->first()->id;
                 self::$_name = $userObj->name;
-                self::$_status = 'on';
+                self::$_userId = '';
             } else {
                 return false;
             }
 
             self::$_data = [
                 'channel' => self::$_channel,
-                'userId'  => self::$userId,
+                'agentId'  => self::$_agentId,
                 'role'    => self::$_role,
                 'name'    => self::$_name,
-                'status'  => self::$_status
+                'userId'  => self::$_userId
             ];
 
             $saveDBRedis = self::_addUserCompanyRedis();
@@ -56,9 +56,9 @@ class AuthUserRedis
            AuthUserRedis::login();
         }
         
-        Redis::command('srem', [self::$_channel, self::$userId]);
-        Redis::command('srem', [self::$_role, self::$userId]);
-        Redis::command('del', [self::$userId]);
+        Redis::command('srem', [self::$_channel, self::$_agentId]);
+        Redis::command('srem', [self::$_role, self::$_agentId]);
+        Redis::command('del', [self::$_agentId]);
     }
 
     public static function status()
@@ -66,7 +66,7 @@ class AuthUserRedis
        $data = [
             'company_'.self::$_channel => Redis::command('smembers', [self::$_channel]),
             'role_'.self::$_role => Redis::command('smembers', [self::$_role]),
-            'agent_'.self::$userId => Redis::command('get', [self::$userId])
+            'agent_'.self::$_agentId => Redis::command('get', [self::$_agentId])
         ];
 
         return $data;
@@ -75,9 +75,9 @@ class AuthUserRedis
     private static function _addUserCompanyRedis()
     {
         try {
-            Redis::command('sadd', [self::$_channel, self::$userId]);
-            Redis::command('sadd', [self::$_role, self::$userId]);
-            Redis::command('set', [self::$userId, json_encode(self::$_data)]);
+            Redis::command('sadd', [self::$_channel, self::$_agentId]);
+            Redis::command('sadd', [self::$_role, self::$_agentId]);
+            Redis::command('set', [self::$_agentId, json_encode(self::$_data)]);
         } catch (Throwable $t) {
             return false;
         }

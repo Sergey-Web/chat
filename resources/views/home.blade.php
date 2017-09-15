@@ -18,8 +18,10 @@
                     You are logged in!
                 </div>
             </div>
-                <textarea name="textMessage" cols="30" rows="2" id="textMessage" style="width:100%;"></textarea>
-                <button class="btn btn-success" id="sendMessage">Send</button>
+                <div class="send-messages-agent" style="display: none;">
+                    <textarea name="textMessage" cols="30" rows="2" id="textMessage" style="width:100%;"></textarea>
+                    <button class="btn btn-success" id="sendMessage">Send</button>
+                </div>
             </form>
         </div>
     </div>

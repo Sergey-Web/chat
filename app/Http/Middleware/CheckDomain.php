@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\CheckDBRedis;
+use App\CheckUser;
 use App\Company;
 use App\AuthUserRedis;
 
@@ -19,9 +19,9 @@ class CheckDomain
      */
     public function handle(Request $request, Closure $next)
     {
-        $domain = CheckDBRedis::getDomain();
-        $subdomain = CheckDBRedis::getSubdomain();
-        $userIp = CheckDBRedis::$userId;
+        $domain = CheckUser::getDomain();
+        $subdomain = CheckUser::getSubdomain();
+        $userIp = CheckUser::$userId;
 
         if($domain != $subdomain) {
             $company = Company::where('domain', $subdomain)->first();

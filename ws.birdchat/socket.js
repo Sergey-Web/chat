@@ -11,7 +11,7 @@ redis.psubscribe('*', function(err, count){});
 redis.on('pmessage', function(pattern, channel, message) {
     let parseMessage = JSON.parse(message);
     let role = parseMessage.data.role;
-    let agentId = parseMessage.data.agent;
+    let agentId = parseMessage.data.agentId;
     let userId = parseMessage.data.userId;
     let messages = parseMessage.data.messages;
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 
-class CheckDBRedis extends Model
+class CheckUser extends Model
 {
     public static $userId;
 

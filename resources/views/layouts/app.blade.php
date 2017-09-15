@@ -89,14 +89,14 @@
             url: '/connectAgent',
             success: function(dataAgent) {
                 if(dataAgent !== 'false') {
+                    var agentId = dataAgent.agentId;
                     var userId = dataAgent.userId;
-                    var status = dataAgent.status;
                     var channel = dataAgent.channel;
                     var role = dataAgent.role;
                     var invitations = dataAgent.invitations;
                     var socket = io(':3000');
                     console.log(dataAgent);
-                    if(status === 'on') {
+                    if(userId === '') {
                         socket.on(channel + ':' + role, function(data) {
                             console.log(data);
                             $('#connectChat').css({'display': 'block'});
@@ -107,8 +107,8 @@
                     } else {
                         $('#connectChat').css({'display': 'none'});
                         $('#disconnectChat').css({'display': 'block'});
-                        $('.form-send-message').css({'display': 'block'});
-                        socket.on(status + ':' + userId, function(data) {
+                        $('.send-messages-agent').css({'display': 'block'});
+                        socket.on(userId + ':' + agentId, function(data) {
                             console.log(data);
                         });
                     }
@@ -118,20 +118,29 @@
                             type: 'POST',
                             url: '/connectAgentUser',
                             success: function(data) {
+                                var userId = data.userId;
+                                var agentId = data.agentId;
+
                                 $('#connectChat').css({'display': 'none'});
                                 $('#disconnectChat').css({'display': 'block'});
-                                $('.form-send-message').css({'display': 'block'});
-                                console.log(data);
+                                $('.send-messages-agent').css({'display': 'block'});
+
+                                socket.on(userId + ':' + agentId, function(data) {
+                                    console.log(data);
+                                });
                             }
                         });
                     });
 
                     $('#sendMessage').on('click', function(){
+                        var textMessage = $('#textMessage').val();
+                        var message = {message: textMessage};
                         $.ajax({
                             type: 'POST',
                             url: '/agentSendMessage',
+                            data: message,
                             success: function(data) {
-                                console.log(data);
+                                //console.log(data);
                             }
                         });
                     });

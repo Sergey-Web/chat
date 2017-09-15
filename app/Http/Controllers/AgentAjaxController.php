@@ -3,39 +3,47 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\CheckDBRedis;
+use App\CheckUser;
 use App\AuthUserRedis;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use App\Events\ConnectionUserChannel;
 
 class AgentAjaxController extends Controller
 {
-    public $userId;
+    public $agentId;
     public $channel;
-    public $status;
+    public $userId;
 
 
     public function connectAgent()
     {
-        $this->userId = Auth::id();
+        $this->agentId = Auth::id();
         $dataAgentRedis = $this->_getDataAgent();
 
-        if($dataAgentRedis && $dataAgentRedis['status'] != 'on') {
+        if($dataAgentRedis && $dataAgentRedis['userId'] != '') {
+            $userId = $dataAgentRedis['userId'];
+            $dataAgentRedis['messages'] = $this->_getMessages($userId);
             return $dataAgentRedis;
         }
 
-
         $dataAgent = AuthUserRedis::login();
-        $data = !empty($this->_getDateDBRedis($this->userId)) ? 
-            $this->_getDateDBRedis($this->userId) : 
+
+        if(!$dataAgent) {
+            return;
+        }
+
+        $data = !empty($this->_getDateDBRedis($this->agentId)) ? 
+            $this->_getDateDBRedis($this->agentId) : 
                 $dataAgent;
         return $data;
     }
 
     public function connectAgentUser()
     {
-        $this->userId = Auth::id();
-        $this->_getDateDBRedis($this->userId);
+        $this->agentId = Auth::id();
+        $this->_getDateDBRedis($this->agentId);
         $pickUpInvite = $this->_pickUpInvite();
 
         if($pickUpInvite == FALSE) {
@@ -45,13 +53,20 @@ class AgentAjaxController extends Controller
         return $this->changeStatus($pickUpInvite);
     }
 
-    public function sendMessage()
+    public function sendMessage(Request $request)
     {
-        $this->userId = Auth::id();
-        $userId = $this->_getDataAgent()['status'];
-        $getMessages = $this->_getMessages($userId);
+        $this->agentId = Auth::id();
+        $data = $this->_getDataAgent();
+        $userId = $this->_getDataAgent()['userId'];
+        $agentName = $this->_getDataAgent()['name'];
+        $responseMessage = $request->all()['message'];
 
-        return $getMessages;
+        $messages = $this->_getMessages($userId);
+        $saveMessage = $this->_saveMessages($userId, $agentName, $messages, $responseMessage);
+        $getNewMessages = $this->_getMessages($userId);
+        $data['messages'] = $getNewMessages;
+        Event::fire( new ConnectionUserChannel($data) );
+        return $getNewMessages;
     }
 
     private function _getMessages($userId)
@@ -60,13 +75,22 @@ class AgentAjaxController extends Controller
         return $getMessages;
     }
 
-    private function _getDateDBRedis($userId)
+    private function _saveMessages($userId, $agentName, $messages, $response)
     {
-        $dataUser = json_decode(Redis::command('get', [$userId]), true);
+        $saveMessage = Redis::command('set', [
+                    $userId . '_messages', $messages . "\n" . $agentName . ':' . $response 
+                ]
+            );
+        return $saveMessage;
+    }
+
+    private function _getDateDBRedis($agentId)
+    {
+        $dataUser = json_decode(Redis::command('get', [$agentId]), true);
 
         if($dataUser) {
             $this->channel = $dataUser['channel'];
-            $this->status = $dataUser['status'];
+            $this->userId = $dataUser['userId'];
             $this->role = $dataUser['role'];
         }
 
@@ -75,7 +99,7 @@ class AgentAjaxController extends Controller
         if($invitations) {
             $data = [
                 'channel'     => $this->channel,
-                'status'      => $this->status,
+                'userId'      => $this->userId,
                 'role'        => $this->role,
                 'invitations' => $invitations
             ];
@@ -110,12 +134,12 @@ class AgentAjaxController extends Controller
     private function changeStatus($pickUpInvite)
     {
         //save in DBredis for User
-        Redis::command('set', [$pickUpInvite . '_connected', $this->userId]);
+        Redis::command('set', [$pickUpInvite . '_connected', $this->agentId]);
 
         //save status Agents in DBredis
         $getDataAgent = $this->_getDataAgent();
-        $getDataAgent['status'] = $pickUpInvite;
-        Redis::command('set', [$this->userId, json_encode($getDataAgent)]);
+        $getDataAgent['userId'] = $pickUpInvite;
+        Redis::command('set', [$this->agentId, json_encode($getDataAgent)]);
 
         return $getDataAgent;
 
@@ -123,7 +147,7 @@ class AgentAjaxController extends Controller
 
     private function _getDataAgent()
     {
-        $getDataAgent = json_decode(Redis::command('get', [$this->userId]), true);
+        $getDataAgent = json_decode(Redis::command('get', [$this->agentId]), true);
         return $getDataAgent;
     }
 }

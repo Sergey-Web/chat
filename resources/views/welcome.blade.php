@@ -87,7 +87,7 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
-                <textarea name="message" id="textMessage" cols="30" rows="10" style="width:100%"></textarea>
+                <textarea name="message" id="textMessage" cols="30" rows="2" style="width:100%"></textarea>
                 <button class="btn btn-primary" id="sendMessage">Send message</button>
 
             </div>
@@ -107,10 +107,13 @@
                         console.log(data);
                         var $channel = data.channel;
                         var $userId = data.userId;
-                        var $agent = data.agent;
-                        /*socket.on(channel + ':' + role, function(data) {
-                            console.log(data);
-                        });*/
+                        var $agentId = data.agentId;
+                        if($agentId){
+                            var socket = io(':3000');
+                            socket.on($userId + ':' + $agentId, function(data) {
+                                console.log(data);
+                            });
+                        }
                         $('#sendMessage').on('click', function() {
                             var $textMessage = $('#textMessage').val();
                             var $messages = {

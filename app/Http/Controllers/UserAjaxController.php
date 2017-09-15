@@ -6,8 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Event;
 use App\Events\ConnectionUserChannel;
-use App\Events\ConnectionUserAgent;
-use App\CheckDBRedis;
+use App\CheckUser;
 
 class UserAjaxController extends Controller
 {
@@ -17,9 +16,9 @@ class UserAjaxController extends Controller
 
     public function __construct()
     {
-        $this->userId = CheckDBRedis::checkIdUser();
+        $this->userId = CheckUser::checkIdUser();
         $this->connectionId = $this->userId . '_connected';
-        $this->subdomain = CheckDBRedis::getSubdomain();
+        $this->subdomain = CheckUser::getSubdomain();
     }
 
     private function _getDataUser()
@@ -31,7 +30,7 @@ class UserAjaxController extends Controller
             'channel'  => $subdomain,
             'userId'   => $userId,
             'messages' => $messages,
-            'agent'    => '',
+            'agentId'    => '',
         ];
 
         return $data;
@@ -41,10 +40,8 @@ class UserAjaxController extends Controller
     {
         $isConnected = $this->_isConnected();
         if($isConnected) {
-            Event::fire( new ConnectionUserChannel($isConnected) );
             return $isConnected;
         }
-
         $data = $this->_getDataUser();
         return $data;
     }
@@ -71,12 +68,12 @@ class UserAjaxController extends Controller
         $isMessages = $this->_getMessage();
         if($isMessages) {
             Redis::command('set', [
-                    $messages['userId'] . '_messages', $isMessages . "\n" . $messages['messages'] 
+                    $messages['userId'] . '_messages', $isMessages . "\n" . 'user:' . $messages['messages'] 
                 ]
             );
         } else {
             Redis::command('set', [
-                    $messages['userId'] . '_messages', $messages['messages'] 
+                    $messages['userId'] . '_messages', 'user:' . $messages['messages'] 
                 ]
             );
         }
@@ -90,7 +87,7 @@ class UserAjaxController extends Controller
             $data = [
                 'userId'   => $this->userId,
                 'channel'  => $this->subdomain,
-                'agent'    => $agentId,
+                'agentId'    => $agentId,
                 'messages' => $messages
             ];
 
