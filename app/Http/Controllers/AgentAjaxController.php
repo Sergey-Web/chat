@@ -44,8 +44,10 @@ class AgentAjaxController extends Controller
     {
         $this->agentId = Auth::id();
         $this->_getDateDBRedis($this->agentId);
-        $pickUpInvite = $this->_pickUpInvite();
 
+        //After acceptance of the invitation by the agent, it will be deleted
+        $pickUpInvite = $this->_pickUpInvite();
+        
         if($pickUpInvite == FALSE) {
             return 'false';
         }

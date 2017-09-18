@@ -87,7 +87,7 @@ class UserAjaxController extends Controller
             $data = [
                 'userId'   => $this->userId,
                 'channel'  => $this->subdomain,
-                'agentId'    => $agentId,
+                'agentId'  => $agentId,
                 'messages' => $messages
             ];
 

@@ -105,31 +105,40 @@
                     url: "/connectUser",
                     success: function(data){
                         console.log(data);
-                        var $channel = data.channel;
-                        var $userId = data.userId;
-                        var $agentId = data.agentId;
-                        if($agentId){
+                        var channel = data.channel;
+                        var userId = data.userId;
+                        var agentId = data.agentId;
+
+                        if(agentId != ''){
                             var socket = io(':3000');
-                            socket.on($userId + ':' + $agentId, function(data) {
+                            socket.on(userId + ':' + agentId, function(data) {
                                 console.log(data);
                             });
                         }
                         $('#sendMessage').on('click', function() {
-                            var $textMessage = $('#textMessage').val();
-                            var $messages = {
-                                    'messages': $textMessage, 
-                                    'channel': $channel,
-                                    'userId': $userId
+                            var textMessage = $('#textMessage').val();
+                            var messages = {
+                                    'messages': textMessage, 
+                                    'channel': channel,
+                                    'userId': userId
                                  };
                             $.ajax({
                                 type: "POST",
                                 url: "/userSendMessage",
-                                data: $messages,
+                                data: messages,
                                 success: function(data){
                                     console.log(data);
-                                    $('#textMessage').val('');
+                                    var agentId = data.agentId;
+
+                                    if(agentId != '') {
+                                        var socket = io(':3000');
+                                        socket.on(userId + ':' + agentId, function(data) {
+                                            console.log(data);
+                                        });
+                                    }
                                 }
                             });
+                            $('#textMessage').val('');
                         });
                     }
                 });

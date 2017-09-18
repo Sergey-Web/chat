@@ -18,7 +18,7 @@ class ConnectionUserChannel implements ShouldBroadcast
     public $userId;
     public $agentId;
     public $messages;
-    public $role = 4;
+    public $role;
 
     /**
      * Create a new event instance.
@@ -31,6 +31,7 @@ class ConnectionUserChannel implements ShouldBroadcast
         $this->userId = $data['userId'];
         $this->agentId = $data['agentId'];
         $this->messages = $data['messages'];
+        $this->role = isset($data['role']) ? $data['role'] : 4;
     }
 
     /**

@@ -118,16 +118,21 @@
                             type: 'POST',
                             url: '/connectAgentUser',
                             success: function(data) {
-                                var userId = data.userId;
-                                var agentId = data.agentId;
+                                console.log(data);
+                                if(data.invite) {
+                                    var userId = data.userId;
+                                    var agentId = data.agentId;
 
-                                $('#connectChat').css({'display': 'none'});
-                                $('#disconnectChat').css({'display': 'block'});
-                                $('.send-messages-agent').css({'display': 'block'});
+                                    $('#connectChat').css({'display': 'none'});
+                                    $('#disconnectChat').css({'display': 'block'});
+                                    $('.send-messages-agent').css({'display': 'block'});
 
-                                socket.on(userId + ':' + agentId, function(data) {
-                                    console.log(data);
-                                });
+                                    socket.on(userId + ':' + agentId, function(data) {
+                                        console.log(data);
+                                    });
+                                } else {
+                                    $('#connectChat').css({'display': 'none'});
+                                }
                             }
                         });
                     });
@@ -140,7 +145,7 @@
                             url: '/agentSendMessage',
                             data: message,
                             success: function(data) {
-                                //console.log(data);
+                                console.log(data);
                             }
                         });
                     });

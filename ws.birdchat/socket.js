@@ -17,7 +17,7 @@ redis.on('pmessage', function(pattern, channel, message) {
 
     if(!agentId && role == 4) {
         io.emit(channel + ':' + 3, {invite: userId});
-    }else if(agentId && role == 4) {
+    }else if(agentId && role == 3 || role == 4) {
         io.emit(userId + ':' + agentId, {message: messages});
     }
     console.log(parseMessage.data);
