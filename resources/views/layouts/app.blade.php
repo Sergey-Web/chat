@@ -11,6 +11,7 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Styles -->
+    <link href="{{ asset('css/chat-style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
@@ -125,14 +126,21 @@
                     console.log(data);
                     var userId = data.userId;
                     var agentId = data.agentId;
+                    var message = data.messages;
 
+                    $('.panel-body').append('<p>'+message+'</p>');
                     $('#connectChat').css({'display': 'none'});
                     $('#disconnectChat').css({'display': 'block'});
                     $('.send-messages-agent').css({'display': 'block'});
 
                     if(userId != '') {
+                        console.log(data);
                         socket.on(userId + ':' + agentId, function(data) {
-                            console.log(data);
+                            var role = data.role;
+                            var name = data.userId;
+                            if(role == 4) {
+                                $('.panel-body').append('<p>' + name + ': '+data.message+'</p>');
+                            }
                         });
                     }
                 }
@@ -147,11 +155,13 @@
                 url: '/agentSendMessage',
                 data: message,
                 success: function(data) {
-                    var agentId = data.agentId;
-                    var userId = data.userId;
-                    console.log(data);
+                    console.log(data)
+                    var name = data.name;
+                    var message = data.messages;
+                    $('.panel-body').append('<p>' + name + ': ' + message + '</p>');
                 }
             });
+            $('#textMessage').val('');
         });
 
     </script>

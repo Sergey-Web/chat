@@ -47,6 +47,7 @@ class AgentAjaxController extends Controller
 
         //After acceptance of the invitation by the agent, it will be deleted
         $pickUpInvite = $this->_pickUpInvite();
+        $this->_changeStatus($pickUpInvite);
         
         if($pickUpInvite == FALSE) {
             return 'false';
@@ -58,7 +59,7 @@ class AgentAjaxController extends Controller
 
         Event::fire( new ConnectionUserChannel($data) );
 
-        return $this->changeStatus($pickUpInvite);
+        return $data;
     }
 
     public function sendMessage(Request $request)
@@ -72,9 +73,9 @@ class AgentAjaxController extends Controller
         $messages = $this->_getMessages($userId);
         $saveMessage = $this->_saveMessages($userId, $agentName, $messages, $responseMessage);
         $getNewMessages = $this->_getMessages($userId);
-        $data['messages'] = $getNewMessages;
+        $data['messages'] = $responseMessage;
         Event::fire( new ConnectionUserChannel($data) );
-        return $getNewMessages;
+        return $data;
     }
 
     private function _getMessages($userId)
@@ -86,7 +87,7 @@ class AgentAjaxController extends Controller
     private function _saveMessages($userId, $agentName, $messages, $response)
     {
         $saveMessage = Redis::command('set', [
-                    $userId . '_messages', $messages . "\n" . $agentName . ':' . $response 
+                    $userId . '_messages', $messages . "\n" . $agentName . ': ' . $response 
                 ]
             );
         return $saveMessage;
@@ -141,7 +142,7 @@ class AgentAjaxController extends Controller
         return $lastUser;
     }
 
-    private function changeStatus($pickUpInvite)
+    private function _changeStatus($pickUpInvite)
     {
         //save in DBredis for User
         Redis::command('set', [$pickUpInvite . '_connected', $this->agentId]);
