@@ -100,6 +100,9 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
+
+                var socket = io(':3000');
+
                 $.ajax({
                     type: "POST",
                     url: "/connectUser",
@@ -108,39 +111,28 @@
                         var channel = data.channel;
                         var userId = data.userId;
                         var agentId = data.agentId;
-
                         if(agentId != ''){
-                            var socket = io(':3000');
                             socket.on(userId + ':' + agentId, function(data) {
                                 console.log(data);
                             });
                         }
-                        $('#sendMessage').on('click', function() {
-                            var textMessage = $('#textMessage').val();
-                            var messages = {
-                                    'messages': textMessage, 
-                                    'channel': channel,
-                                    'userId': userId
-                                 };
-                            $.ajax({
-                                type: "POST",
-                                url: "/userSendMessage",
-                                data: messages,
-                                success: function(data){
-                                    console.log(data);
-                                    var agentId = data.agentId;
-
-                                    if(agentId != '') {
-                                        var socket = io(':3000');
-                                        socket.on(userId + ':' + agentId, function(data) {
-                                            console.log(data);
-                                        });
-                                    }
-                                }
-                            });
-                            $('#textMessage').val('');
-                        });
                     }
+                });
+
+                $('#sendMessage').on('click', function() {
+                    var textMessage = $('#textMessage').val();
+                    var messages = {
+                            'messages': textMessage
+                         };
+                    $.ajax({
+                        type: "POST",
+                        url: "/userSendMessage",
+                        data: messages,
+                        success: function(data){
+                            console.log(data);
+                        }
+                    });
+                    $('#textMessage').val('');
                 });
             });
         </script>

@@ -83,6 +83,7 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
+        var socket = io(':3000');
 
         $.ajax({
             type: 'POST',
@@ -94,7 +95,7 @@
                     var channel = dataAgent.channel;
                     var role = dataAgent.role;
                     var invitations = dataAgent.invitations;
-                    var socket = io(':3000');
+
                     console.log(dataAgent);
                     if(userId === '') {
                         socket.on(channel + ':' + role, function(data) {
@@ -112,45 +113,45 @@
                             console.log(data);
                         });
                     }
-
-                    $('#connectChat').on('click', function(){
-                        $.ajax({
-                            type: 'POST',
-                            url: '/connectAgentUser',
-                            success: function(data) {
-                                console.log(data);
-                                if(data.invite) {
-                                    var userId = data.userId;
-                                    var agentId = data.agentId;
-
-                                    $('#connectChat').css({'display': 'none'});
-                                    $('#disconnectChat').css({'display': 'block'});
-                                    $('.send-messages-agent').css({'display': 'block'});
-
-                                    socket.on(userId + ':' + agentId, function(data) {
-                                        console.log(data);
-                                    });
-                                } else {
-                                    $('#connectChat').css({'display': 'none'});
-                                }
-                            }
-                        });
-                    });
-
-                    $('#sendMessage').on('click', function(){
-                        var textMessage = $('#textMessage').val();
-                        var message = {message: textMessage};
-                        $.ajax({
-                            type: 'POST',
-                            url: '/agentSendMessage',
-                            data: message,
-                            success: function(data) {
-                                console.log(data);
-                            }
-                        });
-                    });
                 }
             }
+        });
+
+        $('#connectChat').on('click', function(){
+            $.ajax({
+                type: 'POST',
+                url: '/connectAgentUser',
+                success: function(data) {
+                    console.log(data);
+                    var userId = data.userId;
+                    var agentId = data.agentId;
+
+                    $('#connectChat').css({'display': 'none'});
+                    $('#disconnectChat').css({'display': 'block'});
+                    $('.send-messages-agent').css({'display': 'block'});
+
+                    if(userId != '') {
+                        socket.on(userId + ':' + agentId, function(data) {
+                            console.log(data);
+                        });
+                    }
+                }
+            });
+        });
+
+        $('#sendMessage').on('click', function(){
+            var textMessage = $('#textMessage').val();
+            var message = {message: textMessage};
+            $.ajax({
+                type: 'POST',
+                url: '/agentSendMessage',
+                data: message,
+                success: function(data) {
+                    var agentId = data.agentId;
+                    var userId = data.userId;
+                    console.log(data);
+                }
+            });
         });
 
     </script>

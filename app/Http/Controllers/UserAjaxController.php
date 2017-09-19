@@ -48,7 +48,7 @@ class UserAjaxController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $this->_saveMessageRedis($request->all());
+        $this->_saveMessageRedis($this->userId, $request->all());
 
         $isConnected = $this->_isConnected();
         if($isConnected) {
@@ -63,17 +63,17 @@ class UserAjaxController extends Controller
         return $data;
     }
 
-    private function _saveMessageRedis($messages)
+    private function _saveMessageRedis($userId, $messages)
     {
         $isMessages = $this->_getMessage();
         if($isMessages) {
             Redis::command('set', [
-                    $messages['userId'] . '_messages', $isMessages . "\n" . 'user:' . $messages['messages'] 
+                    $userId . '_messages', $isMessages . "\n" . 'user:' . $messages['messages'] 
                 ]
             );
         } else {
             Redis::command('set', [
-                    $messages['userId'] . '_messages', 'user:' . $messages['messages'] 
+                    $userId . '_messages', 'user:' . $messages['messages'] 
                 ]
             );
         }

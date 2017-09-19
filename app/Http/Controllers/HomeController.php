@@ -27,6 +27,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        Redis::flushall();
         return view('home');
     }
 
