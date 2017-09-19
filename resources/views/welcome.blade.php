@@ -111,6 +111,20 @@
                         var channel = data.channel;
                         var userId = data.userId;
                         var agentId = data.agentId;
+                        var connect = data.connect;
+                        var nameAgent = data.name;
+                        var name;
+
+                        socket.on(userId + ':connect', function(data){
+                            var agentId = data.agentId;
+                            var name = data.name;
+                            console.log('connect');
+                            socket.on(userId + ':' + agentId, function(data) {
+                                console.log(data);
+                            });
+                        });
+
+
                         if(agentId != ''){
                             socket.on(userId + ':' + agentId, function(data) {
                                 console.log(data);

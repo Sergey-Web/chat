@@ -1,0 +1,15 @@
+.panel-body {
+    min-height: 200px;
+}
+
+#connectChat {
+    animation: change-color 1s linear infinite;
+}
+
+@keyframes change-color {
+    0% {background: #5ad8a6}
+    25% {background: #45d39a}
+    50% {background: #2ab27b}
+    75% {background: #30cf8f}
+    100% {background: #5ad8a6}
+}

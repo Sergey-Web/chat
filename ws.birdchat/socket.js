@@ -13,9 +13,13 @@ redis.on('pmessage', function(pattern, channel, message) {
     let role = parseMessage.data.role;
     let agentId = parseMessage.data.agentId;
     let userId = parseMessage.data.userId;
+    let name = parseMessage.data.name;
     let messages = parseMessage.data.messages;
+    let connect = parseMessage.data.connect;
 
-    if(!agentId && role == 4) {
+    if(connect == true) {
+        io.emit(userId + ':connect', {agentId: agentId, name: name});
+    } else if(!agentId && role == 4) {
         io.emit(channel + ':' + 3, {invite: userId});
     }else if(agentId && role == 3 || role == 4) {
         io.emit(userId + ':' + agentId, {message: messages});

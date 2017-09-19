@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <button class="btn btn-success" id="connectChat" style="display: none;">Connect</button>
+            <button class="btn btn-success" id="connectChat" style="display: none;">Connect Chat</button>
             <button class="btn btn-danger" id="disconnectChat" style="display: none;">Disconnect</button>
             <div class="panel panel-default">
                 <div class="panel-heading">Dashboard </div>
@@ -15,7 +15,7 @@
                         </div>
                     @endif
 
-                    You are logged in!
+                    
                 </div>
             </div>
                 <div class="send-messages-agent" style="display: none;">

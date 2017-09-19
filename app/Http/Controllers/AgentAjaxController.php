@@ -43,7 +43,7 @@ class AgentAjaxController extends Controller
     public function connectAgentUser()
     {
         $this->agentId = Auth::id();
-        $this->_getDateDBRedis($this->agentId);
+        $data = $this->_getDateDBRedis($this->agentId);
 
         //After acceptance of the invitation by the agent, it will be deleted
         $pickUpInvite = $this->_pickUpInvite();
@@ -51,6 +51,12 @@ class AgentAjaxController extends Controller
         if($pickUpInvite == FALSE) {
             return 'false';
         }
+
+        $data['connect'] = TRUE;
+        $data['userId'] = $pickUpInvite;
+        $data['messages'] = $this->_getMessages($data['userId']);
+
+        Event::fire( new ConnectionUserChannel($data) );
 
         return $this->changeStatus($pickUpInvite);
     }
@@ -89,11 +95,11 @@ class AgentAjaxController extends Controller
     private function _getDateDBRedis($agentId)
     {
         $dataUser = json_decode(Redis::command('get', [$agentId]), true);
-
         if($dataUser) {
             $this->channel = $dataUser['channel'];
             $this->userId = $dataUser['userId'];
             $this->role = $dataUser['role'];
+            $this->name = $dataUser['name'];
         }
 
         $invitations = $this->_checkInvitations();
@@ -102,6 +108,8 @@ class AgentAjaxController extends Controller
             $data = [
                 'channel'     => $this->channel,
                 'userId'      => $this->userId,
+                'agentId'     => $this->agentId,
+                'name'        => $this->name,
                 'role'        => $this->role,
                 'invitations' => $invitations
             ];
