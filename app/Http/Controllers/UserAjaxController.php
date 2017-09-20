@@ -69,13 +69,19 @@ class UserAjaxController extends Controller
     {
         $isMessages = $this->_getMessage();
         if($isMessages) {
+
+            $decodeMessages = json_decode($isMessages, true);
+
+            $decodeMessages[] = ['name'=> $userId, 'messages' => $messages['messages']];
+
             Redis::command('set', [
-                    $userId . '_messages', $isMessages . "\n" . $userId . ': ' . $messages['messages'] 
+                    $userId . '_messages', json_encode($decodeMessages)
                 ]
             );
         } else {
+            $arrMessage[] = ['name'=> $userId, 'messages' => $messages['messages']];
             Redis::command('set', [
-                    $userId . '_messages', $userId . ': ' . $messages['messages'] 
+                    $userId . '_messages', json_encode($arrMessage)
                 ]
             );
         }

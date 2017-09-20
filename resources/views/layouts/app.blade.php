@@ -96,8 +96,10 @@
                     var channel = dataAgent.channel;
                     var role = dataAgent.role;
                     var invitations = dataAgent.invitations;
+                    var messages = dataAgent.messages;
 
                     console.log(dataAgent);
+
                     if(userId === '') {
                         socket.on(channel + ':' + role, function(data) {
                             console.log(data);
@@ -110,7 +112,21 @@
                         $('#connectChat').css({'display': 'none'});
                         $('#disconnectChat').css({'display': 'block'});
                         $('.send-messages-agent').css({'display': 'block'});
+
+                        if(messages != '') {
+                            var parseMessages = JSON.parse(messages);
+                            parseMessages.forEach(function(item, i) {
+                                $('.panel-body').append('<p>'+ item.name + ': ' + item.messages +'</p>');
+                            });
+                        }
+
                         socket.on(userId + ':' + agentId, function(data) {
+                            var userId = data.userId;
+                            var message = data.message;
+                            var role = data.role;
+                            if(role == 4) {
+                                $('.panel-body').append('<p>' + userId + ': ' + message + '</p>');
+                            }
                             console.log(data);
                         });
                     }
@@ -126,9 +142,10 @@
                     console.log(data);
                     var userId = data.userId;
                     var agentId = data.agentId;
-                    var message = data.messages;
-
-                    $('.panel-body').append('<p>'+message+'</p>');
+                    var response = JSON.parse(data.messages);
+                    response.forEach(function(item, i) {
+                        $('.panel-body').append('<p>'+ item.name + ': ' + item.messages +'</p>');
+                    });
                     $('#connectChat').css({'display': 'none'});
                     $('#disconnectChat').css({'display': 'block'});
                     $('.send-messages-agent').css({'display': 'block'});

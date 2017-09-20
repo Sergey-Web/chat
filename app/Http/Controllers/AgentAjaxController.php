@@ -86,8 +86,12 @@ class AgentAjaxController extends Controller
 
     private function _saveMessages($userId, $agentName, $messages, $response)
     {
+
+        $decodeMessages = json_decode($messages, true);
+        $decodeMessages[] = ['name'=>$agentName, 'messages' => $response];
+
         $saveMessage = Redis::command('set', [
-                    $userId . '_messages', $messages . "\n" . $agentName . ': ' . $response 
+                    $userId . '_messages', json_encode($decodeMessages) 
                 ]
             );
         return $saveMessage;
