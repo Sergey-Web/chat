@@ -22,27 +22,12 @@ class UserAjaxController extends Controller
         $this->subdomain = CheckUser::getSubdomain();
     }
 
-    private function _getDataUser()
-    {
-        $userId = $this->userId;
-        $subdomain = $this->subdomain;
-        $messages = $this->_getMessage();
-        $data = [
-            'channel'  => $subdomain,
-            'userId'   => $userId,
-            'messages' => $messages,
-            'agentId'    => '',
-        ];
-
-        return $data;
-    }
-
     public function connectUser()
     {
-        $isConnected = $this->_isConnected();
+/*        $isConnected = $this->_isConnected();
         if($isConnected) {
             return $isConnected;
-        }
+        }*/
         $data = $this->_getDataUser();
         return $data;
     }
@@ -60,7 +45,23 @@ class UserAjaxController extends Controller
 
         $this->_saveInvite();
         $data = $this->_getDataUser();
+        $data['messages'] = $this->message;
         Event::fire( new ConnectionUserChannel($data) );
+
+        return $data;
+    }
+
+    private function _getDataUser()
+    {
+        $userId = $this->userId;
+        $subdomain = $this->subdomain;
+        $messages = $this->_getMessage();
+        $data = [
+            'channel'  => $subdomain,
+            'userId'   => $userId,
+            'agentId'  => '',
+            'messages' => $messages
+        ];
 
         return $data;
     }

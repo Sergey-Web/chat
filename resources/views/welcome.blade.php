@@ -16,6 +16,7 @@
 
         <!-- Styles -->
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/chat-style.css') }}" rel="stylesheet">
         <style>
             html, body {
                 background-color: #fff;
@@ -87,6 +88,7 @@
                 <div class="title m-b-md">
                     BirdChat
                 </div>
+                <div class="board-chat"></div>
                 <textarea name="message" id="textMessage" cols="30" rows="2" style="width:100%"></textarea>
                 <button class="btn btn-primary" id="sendMessage">Send message</button>
 
@@ -113,21 +115,40 @@
                         var agentId = data.agentId;
                         var connect = data.connect;
                         var nameAgent = data.name;
+                        var messages = data.messages;
                         var name;
 
                         socket.on(userId + ':connect', function(data){
+                            console.log(data);
                             var agentId = data.agentId;
                             var name = data.name;
-                            console.log('connect');
+                            var connect = 'Agent' + name + ' is connected.';
+
+                            $('.board-chat').append('<p>' + connect + '</p>');
+                            
                             socket.on(userId + ':' + agentId, function(data) {
                                 console.log(data);
+                                var role = data.role;
+                                var name = data.name;
+                                var message = data.message;
+                                if(role == 3) {
+                                    $('.board-chat').append('<p>' + name + ': ' + message + '</p>');
+                                }
                             });
                         });
 
+                        if(messages && messages != '') {
+                            var parseMessages = JSON.parse(messages);
+                            parseMessages.forEach(function(item, i) {
+                                $('.board-chat').append('<p>'+ item.name + ': ' + item.messages +'</p>');
+                            });
+                        }
 
                         if(agentId != ''){
                             socket.on(userId + ':' + agentId, function(data) {
-                                console.log(data);
+                                var message = data.message;
+                                var nameAgent = data.name;
+                                $('.board-chat').append('<p>' + nameAgent + ': ' + message + '</p>');
                             });
                         }
                     }
@@ -144,6 +165,10 @@
                         data: messages,
                         success: function(data){
                             console.log(data);
+                            var userId = data.userId;
+                            var message = data.messages;
+
+                            $('.board-chat').append('<p>You: ' + message + '</p>');
                         }
                     });
                     $('#textMessage').val('');
