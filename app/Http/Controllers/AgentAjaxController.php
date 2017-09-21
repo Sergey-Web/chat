@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\CheckUser;
 use App\AuthUserRedis;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
@@ -88,7 +87,13 @@ class AgentAjaxController extends Controller
     {
 
         $decodeMessages = json_decode($messages, true);
-        $decodeMessages[] = ['name'=>$agentName, 'messages' => $response];
+        $decodeMessages[] = [
+            'id'       => $userId,
+            'name'     => $agentName,
+            'role'     => 3,
+            'date'     => time(), 
+            'messages' => $response
+        ];
 
         $saveMessage = Redis::command('set', [
                     $userId . '_messages', json_encode($decodeMessages) 

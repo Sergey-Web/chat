@@ -21,7 +21,7 @@ class CheckDomain
     {
         $domain = CheckUser::getDomain();
         $subdomain = CheckUser::getSubdomain();
-        $userIp = CheckUser::$userId;
+        $userIp = CheckUser::checkIdUser();
 
         if($domain != $subdomain) {
             $company = Company::where('domain', $subdomain)->first();

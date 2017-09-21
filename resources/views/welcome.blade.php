@@ -122,10 +122,7 @@
                             console.log(data);
                             var agentId = data.agentId;
                             var name = data.name;
-                            var connect = 'Agent' + name + ' is connected.';
 
-                            $('.board-chat').append('<p>' + connect + '</p>');
-                            
                             socket.on(userId + ':' + agentId, function(data) {
                                 console.log(data);
                                 var role = data.role;
@@ -140,7 +137,8 @@
                         if(messages && messages != '') {
                             var parseMessages = JSON.parse(messages);
                             parseMessages.forEach(function(item, i) {
-                                $('.board-chat').append('<p>'+ item.name + ': ' + item.messages +'</p>');
+                                var name = (item.name != '') ? item.name : 'You';
+                                $('.board-chat').append('<p>'+ name + ': ' + item.messages +'</p>');
                             });
                         }
 
@@ -148,7 +146,11 @@
                             socket.on(userId + ':' + agentId, function(data) {
                                 var message = data.message;
                                 var nameAgent = data.name;
-                                $('.board-chat').append('<p>' + nameAgent + ': ' + message + '</p>');
+                                var role = data.role;
+
+                                if(role == 3) {
+                                    $('.board-chat').append('<p>' + nameAgent + ': ' + message + '</p>');
+                                }
                             });
                         }
                     }
@@ -165,10 +167,9 @@
                         data: messages,
                         success: function(data){
                             console.log(data);
-                            var userId = data.userId;
-                            var message = data.messages;
+                            var message = (data.messages != null) ? data.messages : '';
 
-                            $('.board-chat').append('<p>You: ' + message + '</p>');
+                            $('.board-chat').append('<p>You' + ': ' + message + '</p>');
                         }
                     });
                     $('#textMessage').val('');

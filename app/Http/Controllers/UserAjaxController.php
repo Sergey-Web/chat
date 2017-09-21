@@ -24,11 +24,11 @@ class UserAjaxController extends Controller
 
     public function connectUser()
     {
-/*        $isConnected = $this->_isConnected();
-        if($isConnected) {
-            return $isConnected;
-        }*/
         $data = $this->_getDataUser();
+        $isConnected = $this->_isConnected();
+        if($isConnected) {
+            $data['agentId'] = $isConnected['agentId'];
+        }
         return $data;
     }
 
@@ -42,7 +42,6 @@ class UserAjaxController extends Controller
             Event::fire( new ConnectionUserChannel($isConnected) );
             return $isConnected;
         }
-
         $this->_saveInvite();
         $data = $this->_getDataUser();
         $data['messages'] = $this->message;
@@ -58,6 +57,7 @@ class UserAjaxController extends Controller
         $messages = $this->_getMessage();
         $data = [
             'channel'  => $subdomain,
+            'role'     => 4,
             'userId'   => $userId,
             'agentId'  => '',
             'messages' => $messages
@@ -73,14 +73,26 @@ class UserAjaxController extends Controller
 
             $decodeMessages = json_decode($isMessages, true);
 
-            $decodeMessages[] = ['name'=> $userId, 'messages' => $messages['messages']];
+            $decodeMessages[] = [ 
+                'id'       => $userId,
+                'name'     => '',
+                'role'     => 4,
+                'messages' => $messages['messages'], 
+                'date'     => time()
+            ];
 
             Redis::command('set', [
                     $userId . '_messages', json_encode($decodeMessages)
                 ]
             );
         } else {
-            $arrMessage[] = ['name'=> $userId, 'messages' => $messages['messages']];
+            $arrMessage[] = [
+                'id'       => $userId,
+                'name'     => '',
+                'role'     => 4,
+                'messages' => $messages['messages'], 
+                'date'     => time()
+            ];
             Redis::command('set', [
                     $userId . '_messages', json_encode($arrMessage)
                 ]

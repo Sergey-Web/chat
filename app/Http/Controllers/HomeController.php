@@ -27,8 +27,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        dump(Redis::command('get', ['127.0.0.1_messages']));
-        Redis::flushall();
+        //Redis::flushall();
+        dump(json_decode(Redis::command('get', ['127.0.0.1_messages'])));
         return view('home');
     }
 

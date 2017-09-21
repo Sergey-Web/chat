@@ -8,22 +8,31 @@ use Illuminate\Http\Request;
 
 class CheckUser extends Model
 {
-    public static $userId;
-
-    public function __construct()
-    {
-        $userId = self::_getIpUser();
-        self::$userId = Redis::command('get', [$userId]);
-    }
+    private static $userId;
 
     public static function checkIdUser()
     {
-        $userId = self::$userId;
-        if(empty($userId)) {
-            $userId = self::_getIpUser();
+        if(isset($_COOKIE['userId'])) {
+            self::$userId = $_COOKIE['userId'];
+            setcookie('userId', $_COOKIE['userId'], time()+600);
+        } else {
+            self::_assingIdUser();
+            setcookie('userId', self::$userId, time()+600);
         }
 
-        return $userId;
+        return self::$userId;
+    }
+
+    private static function checkConnected()
+    {
+        $invite = Redis::command('set', [$pickUpInvite . '_connected', $this->agentId]);
+        return $invite;
+    }
+
+    private static function _assingIdUser()
+    {
+        $microtime = microtime(true);
+        self::$userId = substr(md5($microtime), -10, 10);
     }
 
     private static function _getIpUser() {
@@ -42,5 +51,13 @@ class CheckUser extends Model
         $domain = self::getDomain();
         $subdomain = preg_replace('/\.' . $domain . '$/s', '', request()->getHttpHost());
         return $subdomain;
+    }
+
+    private function _checkInvitations()
+    {
+        $company = $this->getSubdomain();
+        $invitations = Redis::command('smembers', [$company . '_invite']);
+
+        return $invitations;
     }
 }

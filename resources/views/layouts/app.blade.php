@@ -116,16 +116,17 @@
                         if(messages != '') {
                             var parseMessages = JSON.parse(messages);
                             parseMessages.forEach(function(item, i) {
-                                $('.panel-body').append('<p>'+ item.name + ': ' + item.messages +'</p>');
+                                var name = (item.name != '') ? item.name : 'User';
+                                $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
                             });
                         }
 
                         socket.on(userId + ':' + agentId, function(data) {
-                            var userId = data.userId;
+                            var name = (data.name != '') ? data.name : 'User';
                             var message = data.message;
                             var role = data.role;
                             if(role == 4) {
-                                $('.panel-body').append('<p>' + userId + ': ' + message + '</p>');
+                                $('.panel-body').append('<p>' + name + ': ' + message + '</p>');
                             }
                             console.log(data);
                         });
@@ -144,7 +145,8 @@
                     var agentId = data.agentId;
                     var response = JSON.parse(data.messages);
                     response.forEach(function(item, i) {
-                        $('.panel-body').append('<p>'+ item.name + ': ' + item.messages +'</p>');
+                        var name = (item.name != '') ? item.name : 'User';
+                        $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
                     });
                     $('#connectChat').css({'display': 'none'});
                     $('#disconnectChat').css({'display': 'block'});
@@ -154,7 +156,7 @@
                         console.log(data);
                         socket.on(userId + ':' + agentId, function(data) {
                             var role = data.role;
-                            var name = data.userId;
+                            var name = (data.name != '') ? data.name : 'User';
                             if(role == 4) {
                                 $('.panel-body').append('<p>' + name + ': '+data.message+'</p>');
                             }
