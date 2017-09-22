@@ -14,13 +14,86 @@ class CheckUser extends Model
     {
         if(isset($_COOKIE['userId'])) {
             self::$userId = $_COOKIE['userId'];
-            setcookie('userId', $_COOKIE['userId'], time()+600);
+            setcookie('userId', $_COOKIE['userId'], time()+3600);
         } else {
             self::_assingIdUser();
-            setcookie('userId', self::$userId, time()+600);
+            setcookie('userId', self::$userId, time()+3600);
         }
 
         return self::$userId;
+    }
+
+    public static function getDataUser($userId, $subdomain)
+    {
+        $messages = self::_getMessage($userId);
+        $data = [
+            'channel'  => $subdomain,
+            'role'     => 4,
+            'userId'   => $userId,
+            'agentId'  => '',
+            'messages' => $messages
+        ];
+
+        return $data;
+    }
+
+    public static function isConnected($userId, $subdomain, $connectionId, $messages = '')
+    {
+        $agentId = Redis::command('get', [$connectionId]);
+        if($agentId) {
+            $data = [
+                'userId'   => $userId,
+                'channel'  => $subdomain,
+                'agentId'  => $agentId,
+                'messages' => $messages
+            ];
+
+            return $data;
+        }
+
+        return $agentId;
+    }
+
+    public static function saveMessageRedis($userId, $messages)
+    {
+        $isMessages = self::_getMessage($userId);
+        if($isMessages) {
+
+            $decodeMessages = json_decode($isMessages, true);
+
+            $decodeMessages[] = [
+                'id'       => $userId,
+                'name'     => '',
+                'role'     => 4,
+                'messages' => $messages['messages'], 
+                'date'     => time()
+            ];
+
+            Redis::command('set', [
+                    $userId . '_messages', json_encode($decodeMessages)
+                ]
+            );
+        } else {
+            $arrMessage[] = [
+                'id'       => $userId,
+                'name'     => '',
+                'role'     => 4,
+                'messages' => $messages['messages'], 
+                'date'     => time()
+            ];
+            Redis::command('set', [
+                    $userId . '_messages', json_encode($arrMessage)
+                ]
+            );
+        }
+    }
+
+    private static function _getMessage($userId)
+    {
+        $messageId = $userId . '_messages';
+        $messages = Redis::command('get', [$messageId]);
+
+        return $messages;
     }
 
     private static function checkConnected()
@@ -59,5 +132,10 @@ class CheckUser extends Model
         $invitations = Redis::command('smembers', [$company . '_invite']);
 
         return $invitations;
+    }
+
+    public static function _saveInvite($userId, $company)
+    {
+        Redis::command('sadd', [$company . '_invite', $userId]);
     }
 }

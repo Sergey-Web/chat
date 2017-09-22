@@ -104,8 +104,11 @@
                     if(!userId) {
                         socket.on(channel + ':' + role, function(data) {
                             console.log(data);
-                            if(!userId) {
+                            var storageInvite = data.storageInvite;
+                            if(!userId && !storageInvite) {
                                 $('#connectChat').css({'display': 'block'});
+                            } else if(storageInvite == 'false') {
+                                $('#connectChat').css({'display': 'none'});
                             }
                         });
                         if(invitations > 0) {

@@ -54,6 +54,11 @@ class AgentAjaxController extends Controller
         $data['connect'] = TRUE;
         $data['userId'] = $pickUpInvite;
         $data['messages'] = $this->_getMessages($data['userId']);
+        $checkInvitations = $this->_checkInvitations();
+
+        if($checkInvitations < 1) {
+            $data['storageInvite'] = 'false';
+        }
 
         Event::fire( new ConnectionUserChannel($data) );
 
@@ -74,6 +79,11 @@ class AgentAjaxController extends Controller
         $data['messages'] = $responseMessage;
         Event::fire( new ConnectionUserChannel($data) );
         return $data;
+    }
+
+    public function disconnectChat()
+    {
+        return 'disconnect';
     }
 
     private function _getMessages($userId)
