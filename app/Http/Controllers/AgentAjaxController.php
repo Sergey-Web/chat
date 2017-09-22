@@ -15,13 +15,12 @@ class AgentAjaxController extends Controller
     public $channel;
     public $userId;
 
-
     public function connectAgent()
     {
         $this->agentId = Auth::id();
         $dataAgentRedis = $this->_getDataAgent();
 
-        if($dataAgentRedis && $dataAgentRedis['userId'] != '') {
+        if($dataAgentRedis['userId'] != '') {
             $userId = $dataAgentRedis['userId'];
             $dataAgentRedis['messages'] = $this->_getMessages($userId);
             return $dataAgentRedis;

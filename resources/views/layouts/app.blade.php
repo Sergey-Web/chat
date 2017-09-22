@@ -85,6 +85,7 @@
             }
         });
         var socket = io(':3000');
+        var userId;
 
         $.ajax({
             type: 'POST',
@@ -92,7 +93,7 @@
             success: function(dataAgent) {
                 if(dataAgent !== 'false') {
                     var agentId = dataAgent.agentId;
-                    var userId = dataAgent.userId;
+                    userId = (dataAgent.userId) ? dataAgent.userId : userId;
                     var channel = dataAgent.channel;
                     var role = dataAgent.role;
                     var invitations = dataAgent.invitations;
@@ -100,10 +101,12 @@
 
                     console.log(dataAgent);
 
-                    if(userId === '') {
+                    if(!userId) {
                         socket.on(channel + ':' + role, function(data) {
                             console.log(data);
-                            $('#connectChat').css({'display': 'block'});
+                            if(!userId) {
+                                $('#connectChat').css({'display': 'block'});
+                            }
                         });
                         if(invitations > 0) {
                             $('#connectChat').css({'display': 'block'});
@@ -113,7 +116,7 @@
                         $('#disconnectChat').css({'display': 'block'});
                         $('.send-messages-agent').css({'display': 'block'});
 
-                        if(messages != '') {
+                        if(messages && agentId) {
                             var parseMessages = JSON.parse(messages);
                             parseMessages.forEach(function(item, i) {
                                 var name = (item.name != '') ? item.name : 'User';
@@ -141,26 +144,30 @@
                 url: '/connectAgentUser',
                 success: function(data) {
                     console.log(data);
-                    var userId = data.userId;
-                    var agentId = data.agentId;
-                    var response = JSON.parse(data.messages);
-                    response.forEach(function(item, i) {
-                        var name = (item.name != '') ? item.name : 'User';
-                        $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
-                    });
-                    $('#connectChat').css({'display': 'none'});
-                    $('#disconnectChat').css({'display': 'block'});
-                    $('.send-messages-agent').css({'display': 'block'});
-
-                    if(userId != '') {
-                        console.log(data);
-                        socket.on(userId + ':' + agentId, function(data) {
-                            var role = data.role;
-                            var name = (data.name != '') ? data.name : 'User';
-                            if(role == 4) {
-                                $('.panel-body').append('<p>' + name + ': '+data.message+'</p>');
-                            }
+                    if(data != 'false') {
+                        userId = (data.userId) ? data.userId : userId;
+                        var agentId = data.agentId;
+                        var response = JSON.parse(data.messages);
+                        response.forEach(function(item, i) {
+                            var name = (item.name != '') ? item.name : 'User';
+                            $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
                         });
+                        $('#connectChat').css({'display': 'none'});
+                        $('#disconnectChat').css({'display': 'block'});
+                        $('.send-messages-agent').css({'display': 'block'});
+
+                        if(userId != '') {
+                            console.log(data);
+                            socket.on(userId + ':' + agentId, function(data) {
+                                var role = data.role;
+                                var name = (data.name != '') ? data.name : 'User';
+                                if(role == 4) {
+                                    $('.panel-body').append('<p>' + name + ': '+data.message+'</p>');
+                                }
+                            });
+                        }
+                    } else {
+                        $('#connectChat').css({'display': 'none'});
                     }
                 }
             });
