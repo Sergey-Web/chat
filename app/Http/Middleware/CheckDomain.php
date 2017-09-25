@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use App\CheckUser;
 use App\Company;
-use App\AuthUserRedis;
+use App\AuthAgentRedis;
 
 class CheckDomain
 {
@@ -29,7 +29,7 @@ class CheckDomain
                 return abort(404);
             }
 
-            AuthUserRedis::login($subdomain, $userIp);
+            AuthAgentRedis::login($subdomain, $userIp);
         }
 
         return $next($request);

@@ -19,6 +19,7 @@ class CreateMessagesTable extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
+            $table->text('messages');
             $table->timestamps();
         });
     }
@@ -30,6 +31,9 @@ class CreateMessagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('messages');
+        Schema::table('messages', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        });
     }
 }

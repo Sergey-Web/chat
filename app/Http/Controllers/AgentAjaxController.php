@@ -3,23 +3,23 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\AuthUserRedis;
+use App\AuthAgentRedis;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use App\Events\ConnectionUserChannel;
 use App\CheckAgent;
+use App\Message;
 
 class AgentAjaxController extends Controller
 {
-    public $agentId;
     public $channel;
     public $userId;
 
     public function connectAgent()
     {
-        $this->agentId = Auth::id();
-        $dataAgentRedis = CheckAgent::getDataAgent($this->agentId);
+        $agentId = Auth::id();
+        $dataAgentRedis = CheckAgent::getDataAgent($agentId);
 
         if($dataAgentRedis['userId'] != '') {
             $userId = $dataAgentRedis['userId'];
@@ -27,26 +27,26 @@ class AgentAjaxController extends Controller
             return $dataAgentRedis;
         }
 
-        $dataAgent = AuthUserRedis::login();
+        $dataAgent = AuthAgentRedis::login();
 
         if(!$dataAgent) {
             return;
         }
 
-        $data = !empty($this->_getDateDBRedis($this->agentId)) ? 
-            $this->_getDateDBRedis($this->agentId) : 
+        $data = !empty(CheckAgent::getDataDBRedis($agentId)) ? 
+            CheckAgent::getDataDBRedis($agentId) : 
                 $dataAgent;
         return $data;
     }
 
     public function connectAgentUser()
     {
-        $this->agentId = Auth::id();
-        $data = $this->_getDateDBRedis($this->agentId);
+        $agentId = Auth::id();
+        $data = CheckAgent::getDataDBRedis($agentId);
 
         //After acceptance of the invitation by the agent, it will be deleted
-        $pickUpInvite = $this->_pickUpInvite();
-        $this->_changeStatus($pickUpInvite);
+        $pickUpInvite = CheckAgent::pickUpInvite($data['channel']);
+        CheckAgent::changeStatus($agentId, $pickUpInvite);
         
         if($pickUpInvite == FALSE) {
             return 'false';
@@ -68,14 +68,14 @@ class AgentAjaxController extends Controller
 
     public function sendMessage(Request $request)
     {
-        $this->agentId = Auth::id();
-        $data = CheckAgent::getDataAgent($this->agentId);
+        $agentId = Auth::id();
+        $data = CheckAgent::getDataAgent($agentId);
         $userId = $data['userId'];
         $agentName = $data['name'];
         $responseMessage = $request->all()['message'];
 
         $messages = CheckAgent::getMessages($userId);
-        $saveMessage = $this->_saveMessages($userId, $agentName, $messages, $responseMessage);
+        $saveMessage = CheckAgent::saveMessages($userId, $agentName, $messages, $responseMessage);
         $getNewMessages = CheckAgent::getMessages($userId);
         $data['messages'] = $responseMessage;
         Event::fire( new ConnectionUserChannel($data) );
@@ -84,80 +84,21 @@ class AgentAjaxController extends Controller
 
     public function disconnectChat()
     {
-        return 'disconnect';
-    }
+        $agentId = Auth::id();
+        $data = CheckAgent::getDataAgent($agentId);
+        $messages = CheckAgent::getMessages($data['userId']);
+        $invite = CheckAgent::pickUpInvite();
 
-    private function _saveMessages($userId, $agentName, $messages, $response)
-    {
+        return $invite;
 
-        $decodeMessages = json_decode($messages, true);
-        $decodeMessages[] = [
-            'id'       => $userId,
-            'name'     => $agentName,
-            'role'     => 3,
-            'date'     => time(), 
-            'messages' => $response
-        ];
+        //Save a message from the database Mysql
+        CheckAgent::saveMessagesDB($agentId, $messages);
 
-        $saveMessage = Redis::command('set', [
-                    $userId . '_messages', json_encode($decodeMessages) 
-                ]
-            );
-        return $saveMessage;
-    }
+        //Removing from the Radis DB connection with the user
+        CheckAgent::delDataAgentDBRedis($data['userId'], $agentId);
 
-    private function _getDateDBRedis($agentId)
-    {
-        $dataUser = json_decode(Redis::command('get', [$agentId]), true);
-        if($dataUser) {
-            $this->channel = $dataUser['channel'];
-            $this->userId = $dataUser['userId'];
-            $this->role = $dataUser['role'];
-            $this->name = $dataUser['name'];
-        }
+        $dataAgent = AuthAgentRedis::login();
 
-        $invitations = CheckAgent::checkInvitations($this->channel);
-
-        if($invitations) {
-            $data = [
-                'channel'     => $this->channel,
-                'userId'      => $this->userId,
-                'agentId'     => $this->agentId,
-                'name'        => $this->name,
-                'role'        => $this->role,
-                'invitations' => $invitations
-            ];
-            return $data;
-        }
-
-        return $dataUser;
-    }
-
-    private function _pickUpInvite()
-    {
-        $company = $this->channel;
-        $invitations = Redis::command('smembers', [$company . '_invite']);
-        $countInvitations = count($invitations);
-        if($countInvitations == 0) {
-            return FALSE;
-        } 
-        $lastUser = $invitations[$countInvitations-1];
-        $delInvite = Redis::command('srem', [$company . '_invite', $lastUser]);
-
-        return $lastUser;
-    }
-
-    private function _changeStatus($pickUpInvite)
-    {
-        //save in DBredis for User
-        Redis::command('set', [$pickUpInvite . '_connected', $this->agentId]);
-
-        //save status Agents in DBredis
-        $getDataAgent = CheckAgent::getDataAgent($this->agentId);
-        $getDataAgent['userId'] = $pickUpInvite;
-        Redis::command('set', [$this->agentId, json_encode($getDataAgent)]);
-
-        return $getDataAgent;
-
+        return $dataAgent;
     }
 }

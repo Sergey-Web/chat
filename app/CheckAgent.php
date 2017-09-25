@@ -27,7 +27,7 @@ class CheckAgent extends Model
         return $invitations;
     }
 
-    public static function getDateDBRedis($agentId)
+    public static function getDataDBRedis($agentId)
     {
         $dataUser = json_decode(Redis::command('get', [$agentId]), true);
         if($dataUser) {
@@ -36,9 +36,9 @@ class CheckAgent extends Model
 
             if($invitations) {
                 $data = [
-                    'channel'     => $dataUser['agentId'],
-                    'userId'      => $dataUser['channel'],
-                    'agentId'     => $dataUser['userId'],
+                    'channel'     => $dataUser['channel'],
+                    'userId'      => $dataUser['userId'],
+                    'agentId'     => $dataUser['agentId'],
                     'name'        => $dataUser['role'],
                     'role'        => $dataUser['name'],
                     'invitations' => $invitations
@@ -48,5 +48,66 @@ class CheckAgent extends Model
         }
 
         return $dataUser;
+    }
+
+    public static function pickUpInvite($company)
+    {
+        $invitations = Redis::command('smembers', [$company . '_invite']);
+        $countInvitations = count($invitations);
+        if($countInvitations == 0) {
+            return FALSE;
+        } 
+        $lastUser = $invitations[$countInvitations-1];
+        $delInvite = Redis::command('srem', [$company . '_invite', $lastUser]);
+
+        return $lastUser;
+    }
+
+    public static function changeStatus($agentId, $pickUpInvite)
+    {
+        //save in DBredis for User
+        Redis::command('set', [$pickUpInvite . '_connected', $agentId]);
+
+        //save status Agents in DBredis
+        $getDataAgent = CheckAgent::getDataAgent($agentId);
+        $getDataAgent['userId'] = $pickUpInvite;
+        Redis::command('set', [$agentId, json_encode($getDataAgent)]);
+
+        return $getDataAgent;
+
+    }
+
+    public static function saveMessages($userId, $agentName, $messages, $response)
+    {
+        $decodeMessages = json_decode($messages, true);
+        $decodeMessages[] = [
+            'id'       => $userId,
+            'name'     => $agentName,
+            'role'     => 3,
+            'date'     => time(), 
+            'messages' => $response
+        ];
+
+        $saveMessage = Redis::command('set', [
+                    $userId . '_messages', json_encode($decodeMessages) 
+                ]
+            );
+        return $saveMessage;
+    }
+
+    public static function saveMessagesDB($agentId, $messages)
+    {
+        $saveMessagesDB = Message::create([
+           'user_id'  => $agentId,
+           'messages' => $messages
+        ]);
+
+        return $saveMessagesDB;
+    }
+
+    public static function delDataAgentDBRedis($userId, $agentId)
+    {
+        Redis::command('del', [$userId . '_connected']);
+        Redis::command('del', [$agentId]);
     }
 }

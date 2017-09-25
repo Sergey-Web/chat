@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Event;
 use App\Events\ConnectUserChannel;
 
-class AuthUserRedis
+class AuthAgentRedis
 {
     private static $_data = NULL;
     private static $_channel = NULL;
@@ -53,7 +53,7 @@ class AuthUserRedis
     public static function logout()
     {
         if(self::$_data == NULL) {
-           AuthUserRedis::login();
+           self::login();
         }
         
         Redis::command('srem', [self::$_channel, self::$_agentId]);

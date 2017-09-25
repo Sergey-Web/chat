@@ -184,13 +184,23 @@
                 url: '/agentSendMessage',
                 data: message,
                 success: function(data) {
-                    console.log(data)
+                    console.log(data);
                     var name = data.name;
                     var message = data.messages;
                     $('.panel-body').append('<p>' + name + ': ' + message + '</p>');
                 }
             });
             $('#textMessage').val('');
+        });
+
+        $('#disconnectChat').on('click', function(){
+            $.ajax({
+                type: 'POST',
+                url: '/disconnectChat',
+                success: function(data) {
+                    console.log(data);
+                }
+            });
         });
 
     </script>
