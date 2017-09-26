@@ -27,7 +27,7 @@ class HomeController extends Controller
     public function index()
     {
         //Redis::flushall();
-        dump(json_decode(Redis::command('get', ['127.0.0.1_messages'])));
+        dump(Redis::command('smembers', ['com1_invite']));
         return view('home');
     }
 

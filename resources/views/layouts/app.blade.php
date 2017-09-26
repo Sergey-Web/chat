@@ -199,6 +199,18 @@
                 url: '/disconnectChat',
                 success: function(data) {
                     console.log(data);
+                    $('#disconnectChat').css({'display': 'none'});
+                    var countInvite = (data.invitations !== undefined) ? 
+                        data.invitations :
+                            false;
+
+                    if(countInvite) {
+                        $('#connectChat').css({'display': 'block'});
+                    }
+
+                    $('.panel-body').empty();
+
+                    $('.send-messages-agent').css({'display': 'none'});
                 }
             });
         });

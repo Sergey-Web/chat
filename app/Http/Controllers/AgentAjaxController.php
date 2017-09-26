@@ -87,9 +87,6 @@ class AgentAjaxController extends Controller
         $agentId = Auth::id();
         $data = CheckAgent::getDataAgent($agentId);
         $messages = CheckAgent::getMessages($data['userId']);
-        $invite = CheckAgent::pickUpInvite();
-
-        return $invite;
 
         //Save a message from the database Mysql
         CheckAgent::saveMessagesDB($agentId, $messages);
@@ -97,7 +94,13 @@ class AgentAjaxController extends Controller
         //Removing from the Radis DB connection with the user
         CheckAgent::delDataAgentDBRedis($data['userId'], $agentId);
 
+        //update Agent data
         $dataAgent = AuthAgentRedis::login();
+
+        $countInvite = CheckAgent::checkInvitations($data['channel']);
+        if($countInvite > 0) {
+            $dataAgent['invitations'] = $countInvite;
+        }
 
         return $dataAgent;
     }
