@@ -99,12 +99,10 @@
                     var invitations = dataAgent.invitations;
                     var messages = dataAgent.messages;
 
-                    console.log(dataAgent);
-
                     if(!userId) {
                         socket.on(channel + ':' + role, function(data) {
-                            console.log(data);
                             var storageInvite = data.storageInvite;
+
                             if(!userId && !storageInvite) {
                                 $('#connectChat').css({'display': 'block'});
                             } else if(storageInvite == 'false') {
@@ -199,6 +197,8 @@
                 url: '/disconnectChat',
                 success: function(data) {
                     console.log(data);
+                    userId = '';
+
                     $('#disconnectChat').css({'display': 'none'});
                     var countInvite = (data.invitations !== undefined) ? 
                         data.invitations :

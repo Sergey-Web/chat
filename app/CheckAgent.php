@@ -39,8 +39,8 @@ class CheckAgent extends Model
                     'channel'     => $dataUser['channel'],
                     'userId'      => $dataUser['userId'],
                     'agentId'     => $dataUser['agentId'],
-                    'name'        => $dataUser['role'],
-                    'role'        => $dataUser['name'],
+                    'role'        => $dataUser['role'],
+                    'name'        => $dataUser['name'],
                     'invitations' => $invitations
                 ];
                 return $data;

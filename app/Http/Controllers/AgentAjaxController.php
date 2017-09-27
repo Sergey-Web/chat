@@ -55,7 +55,7 @@ class AgentAjaxController extends Controller
         $data['connect'] = TRUE;
         $data['userId'] = $pickUpInvite;
         $data['messages'] = CheckAgent::getMessages($data['userId']);
-        $checkInvitations = CheckAgent::checkInvitations($this->channel);
+        $checkInvitations = CheckAgent::checkInvitations($data['channel']);
 
         if($checkInvitations < 1) {
             $data['storageInvite'] = 'false';

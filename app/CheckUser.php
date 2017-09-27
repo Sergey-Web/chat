@@ -62,11 +62,11 @@ class CheckUser extends Model
             $decodeMessages = json_decode($isMessages, true);
 
             $decodeMessages[] = [
-                'id'       => $userId,
-                'name'     => '',
-                'role'     => 4,
-                'messages' => $messages['messages'], 
-                'date'     => time()
+                'id'        => $userId,
+                'name'      => '',
+                'role'      => 4,
+                'messages'  => $messages['messages'], 
+                'timestamp' => time()
             ];
 
             Redis::command('set', [
@@ -75,11 +75,11 @@ class CheckUser extends Model
             );
         } else {
             $arrMessage[] = [
-                'id'       => $userId,
-                'name'     => '',
-                'role'     => 4,
-                'messages' => $messages['messages'], 
-                'date'     => time()
+                'id'        => $userId,
+                'name'      => '',
+                'role'      => 4,
+                'messages'  => $messages['messages'], 
+                'timestamp' => time()
             ];
             Redis::command('set', [
                     $userId . '_messages', json_encode($arrMessage)

@@ -34,7 +34,7 @@ class AuthAgentRedis
 
             self::$_data = [
                 'channel' => self::$_channel,
-                'agentId'  => self::$_agentId,
+                'agentId' => self::$_agentId,
                 'role'    => self::$_role,
                 'name'    => self::$_name,
                 'userId'  => self::$_userId

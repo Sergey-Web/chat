@@ -26,7 +26,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        //Redis::flushall();
+       // Redis::flushall();
         dump(Redis::command('smembers', ['com1_invite']));
         return view('home');
     }
