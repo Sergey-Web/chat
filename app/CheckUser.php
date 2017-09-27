@@ -8,19 +8,21 @@ use Illuminate\Http\Request;
 
 class CheckUser extends Model
 {
+    private static $lifetimeId = 3600;
+    private static $lifetimeMessage = 3600;
+    private static $lifetimeInvitations = 300;
     private static $userId;
+    private static $company;
 
     public static function checkIdUser()
     {
-        if(isset($_COOKIE['userId'])) {
-            self::$userId = $_COOKIE['userId'];
-            setcookie('userId', $_COOKIE['userId'], time()+3600);
-        } else {
-            self::_assingIdUser();
-            setcookie('userId', self::$userId, time()+3600);
-        }
+        $userIdCookie = isset($_COOKIE['userId']) ?
+            $_COOKIE['userId'] :
+                self::_assingIdUser();
 
-        return self::$userId;
+        self::$company = self::getDomain();
+
+        return $userIdCookie;
     }
 
     public static function getDataUser($userId, $subdomain)
@@ -87,6 +89,8 @@ class CheckUser extends Model
                 ]
             );
         }
+
+       return self::_timerMessages($userId);
     }
 
     private static function _getMessage($userId)
@@ -107,6 +111,8 @@ class CheckUser extends Model
     {
         $microtime = microtime(true);
         self::$userId = substr(md5($microtime), -10, 10);
+
+        return self::$userId;
     }
 
     private static function _getIpUser() {
@@ -116,7 +122,7 @@ class CheckUser extends Model
 
     public static function getDomain()
     {
-        $domain = env('APP_DOMAIN', 'birdchat.dev');
+        $domain = env('APP_DOMAIN');
         return $domain;
     }
 
@@ -138,5 +144,22 @@ class CheckUser extends Model
     public static function _saveInvite($userId, $company)
     {
         Redis::command('sadd', [$company . '_invite', $userId]);
+        self::_timerInvitations($company);
+    }
+
+    private static function _timerCookieId($userIdCookie)
+    {
+        setcookie('userId', $userIdCookie, time()+self::$lifetimeId);
+    }
+
+    private static function _timerMessages($userId)
+    {
+        self::$lifetimeMessage;
+        Redis::command('expire', [$userId . '_messages', time()+self::$lifetimeMessage]);
+    }
+
+    private static function _timerInvitations($channel)
+    {
+        Redis::command('expire', [$channel . '_invite', time()+self::$lifetimeInvitations]);
     }
 }
