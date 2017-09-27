@@ -44,8 +44,8 @@ class UserAjaxController extends Controller
         $message = $request->all()['messages'];
         $timestamp = time();
 
-        CheckUser::saveMessageRedis($this->userId, $request->all(), $timestamp);
-
+        $checkUser = CheckUser::saveMessageRedis($this->userId, $request->all(), $timestamp);
+        return $checkUser;
         $isConnected = CheckUser::isConnected(
             $userId, $subdomain, $connectionId, $message, $timestamp
         );
@@ -54,7 +54,6 @@ class UserAjaxController extends Controller
             Event::fire( new ConnectionUserChannel($isConnected) );
             return $isConnected;
         }
-
         CheckUser::_saveInvite($userId, $subdomain);
         $data = CheckUser::getDataUser($userId, $subdomain);
         $data['messages'] = $message;

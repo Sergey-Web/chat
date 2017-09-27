@@ -6,21 +6,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 
+$check = CheckUser::checkIdUser();
+
 class CheckUser extends Model
 {
+    private static $lifetimeId;
+    private static $lifetimeMessage;
+    private static $lifetimeInvitations;
     private static $userId;
+    private static $company;
+
+    public function __construct()
+    {
+        self::
+    }
 
     public static function checkIdUser()
     {
-        if(isset($_COOKIE['userId'])) {
-            self::$userId = $_COOKIE['userId'];
-            setcookie('userId', $_COOKIE['userId'], time()+3600);
-        } else {
-            self::_assingIdUser();
-            setcookie('userId', self::$userId, time()+3600);
-        }
+        $userIdCookie = isset($_COOKIE['userId']) ?
+            $_COOKIE['userId'] :
+                self::_assingIdUser();
 
-        return self::$userId;
+        self::$lifetimeId = time()+3600; // 1 hour
+        self::$lifetimeMessage = time()+3600; // 1 hour
+        self::$lifetimeInvitations = time()+300; // 5 min
+        self::$company = self::getDomain();
+
+        return $userIdCookie;
     }
 
     public static function getDataUser($userId, $subdomain)
@@ -87,6 +99,8 @@ class CheckUser extends Model
                 ]
             );
         }
+
+       return self::_timerMessages($userId);
     }
 
     private static function _getMessage($userId)
@@ -107,6 +121,8 @@ class CheckUser extends Model
     {
         $microtime = microtime(true);
         self::$userId = substr(md5($microtime), -10, 10);
+
+        return self::$userId;
     }
 
     private static function _getIpUser() {
@@ -116,7 +132,7 @@ class CheckUser extends Model
 
     public static function getDomain()
     {
-        $domain = env('APP_DOMAIN', 'birdchat.dev');
+        $domain = env('APP_DOMAIN');
         return $domain;
     }
 
@@ -138,5 +154,22 @@ class CheckUser extends Model
     public static function _saveInvite($userId, $company)
     {
         Redis::command('sadd', [$company . '_invite', $userId]);
+        self::_timerInvitations($company);
+    }
+
+    private static function _timerCookieId($userIdCookie)
+    {
+        setcookie('userId', $userIdCookie, self::$lifetimeId);
+    }
+
+    private static function _timerMessages($userId)
+    {
+        return self::$lifetimeMessage;
+        Redis::command('expire', [$userId . '_messages', self::$lifetimeMessage]);
+    }
+
+    private static function _timerInvitations($channel)
+    {
+        Redis::command('expire', [$channel . '_invite', self::$lifetimeInvitations]);
     }
 }
