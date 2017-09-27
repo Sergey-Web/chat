@@ -73,11 +73,13 @@ class AgentAjaxController extends Controller
         $userId = $data['userId'];
         $agentName = $data['name'];
         $responseMessage = $request->all()['message'];
+        $timestamp = time();
 
         $messages = CheckAgent::getMessages($userId);
-        $saveMessage = CheckAgent::saveMessages($userId, $agentName, $messages, $responseMessage);
+        $saveMessage = CheckAgent::saveMessages($userId, $agentName, $messages, $responseMessage, $timestamp);
         $getNewMessages = CheckAgent::getMessages($userId);
         $data['messages'] = $responseMessage;
+        $data['timestamp'] = $timestamp;
         Event::fire( new ConnectionUserChannel($data) );
         return $data;
     }

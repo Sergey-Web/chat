@@ -77,15 +77,15 @@ class CheckAgent extends Model
 
     }
 
-    public static function saveMessages($userId, $agentName, $messages, $response)
+    public static function saveMessages($userId, $agentName, $messages, $response, $timestamp)
     {
         $decodeMessages = json_decode($messages, true);
         $decodeMessages[] = [
-            'id'       => $userId,
-            'name'     => $agentName,
-            'role'     => 3,
-            'date'     => time(), 
-            'messages' => $response
+            'id'        => $userId,
+            'name'      => $agentName,
+            'role'      => 3,
+            'timestamp' => $timestamp, 
+            'messages'  => $response
         ];
 
         $saveMessage = Redis::command('set', [

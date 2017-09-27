@@ -42,11 +42,12 @@ class UserAjaxController extends Controller
         $subdomain = $this->subdomain;
         $connectionId = $this->connectionId;
         $message = $request->all()['messages'];
+        $timestamp = time();
 
-        CheckUser::saveMessageRedis($this->userId, $request->all());
+        CheckUser::saveMessageRedis($this->userId, $request->all(), $timestamp);
 
         $isConnected = CheckUser::isConnected(
-            $userId, $subdomain, $connectionId, $message
+            $userId, $subdomain, $connectionId, $message, $timestamp
         );
 
         if($isConnected) {

@@ -92,6 +92,7 @@
             url: '/connectAgent',
             success: function(dataAgent) {
                 if(dataAgent !== 'false') {
+                    console.log(dataAgent);
                     var agentId = dataAgent.agentId;
                     userId = (dataAgent.userId) ? dataAgent.userId : userId;
                     var channel = dataAgent.channel;

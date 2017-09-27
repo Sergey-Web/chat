@@ -37,15 +37,16 @@ class CheckUser extends Model
         return $data;
     }
 
-    public static function isConnected($userId, $subdomain, $connectionId, $messages = '')
+    public static function isConnected($userId, $subdomain, $connectionId, $messages = '', $timestamp = '')
     {
         $agentId = Redis::command('get', [$connectionId]);
         if($agentId) {
             $data = [
-                'userId'   => $userId,
-                'channel'  => $subdomain,
-                'agentId'  => $agentId,
-                'messages' => $messages
+                'userId'    => $userId,
+                'channel'   => $subdomain,
+                'agentId'   => $agentId,
+                'messages'  => $messages,
+                'timestamp' => $timestamp
             ];
 
             return $data;
@@ -54,7 +55,7 @@ class CheckUser extends Model
         return $agentId;
     }
 
-    public static function saveMessageRedis($userId, $messages)
+    public static function saveMessageRedis($userId, $messages, $timestamp)
     {
         $isMessages = self::_getMessage($userId);
         if($isMessages) {
@@ -66,7 +67,7 @@ class CheckUser extends Model
                 'name'      => '',
                 'role'      => 4,
                 'messages'  => $messages['messages'], 
-                'timestamp' => time()
+                'timestamp' => $timestamp
             ];
 
             Redis::command('set', [
@@ -79,7 +80,7 @@ class CheckUser extends Model
                 'name'      => '',
                 'role'      => 4,
                 'messages'  => $messages['messages'], 
-                'timestamp' => time()
+                'timestamp' => $timestamp
             ];
             Redis::command('set', [
                     $userId . '_messages', json_encode($arrMessage)
