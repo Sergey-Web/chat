@@ -45,7 +45,6 @@ class UserAjaxController extends Controller
         $timestamp = time();
 
         $checkUser = CheckUser::saveMessageRedis($this->userId, $request->all(), $timestamp);
-        return $checkUser;
         $isConnected = CheckUser::isConnected(
             $userId, $subdomain, $connectionId, $message, $timestamp
         );

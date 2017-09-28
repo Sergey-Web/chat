@@ -21,6 +21,7 @@ class CheckUser extends Model
                 self::_assingIdUser();
 
         self::$company = self::getDomain();
+        self::_timerCookieId($userIdCookie);
 
         return $userIdCookie;
     }
@@ -155,11 +156,11 @@ class CheckUser extends Model
     private static function _timerMessages($userId)
     {
         self::$lifetimeMessage;
-        Redis::command('expire', [$userId . '_messages', time()+self::$lifetimeMessage]);
+        Redis::command('expire', [$userId . '_messages', self::$lifetimeMessage]);
     }
 
     private static function _timerInvitations($channel)
     {
-        Redis::command('expire', [$channel . '_invite', time()+self::$lifetimeInvitations]);
+        Redis::command('expire', [$channel . '_invite', self::$lifetimeInvitations]);
     }
 }
