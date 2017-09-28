@@ -16,6 +16,7 @@ redis.on('pmessage', function(pattern, channel, message) {
     let name = parseMessage.data.name;
     let messages = parseMessage.data.messages;
     let connect = parseMessage.data.connect;
+    let disconnect = parseMessage.data.disconnect;
     let storageInvite = parseMessage.data.storageInvite;
 
     if(connect == true) {
@@ -23,9 +24,11 @@ redis.on('pmessage', function(pattern, channel, message) {
         if(storageInvite == 'false') {
             io.emit(channel + ':' + 3, {storageInvite: storageInvite});
         }
+    } else if(disconnect == true) {
+        io.emit(userId + ':disconnect', {agentId: agentId, userId: userId});
     } else if(!agentId && role == 4) {
         io.emit(channel + ':' + 3, {invite: userId});
-    }else if(agentId && role == 3 || role == 4) {
+    } else if(agentId && role == 3 || role == 4) {
         io.emit(userId + ':' + agentId, {message: messages, role: role, name: name, userId: userId});
     }
     console.log(parseMessage.data.messages);

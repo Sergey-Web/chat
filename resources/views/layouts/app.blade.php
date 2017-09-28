@@ -87,6 +87,11 @@
         var socket = io(':3000');
         var userId;
 
+        function scrollBottom() {
+            var objDiv = document.getElementsByClassName('panel-body');
+            objDiv[0].scrollTop = objDiv[0].scrollHeight;
+        }
+
         $.ajax({
             type: 'POST',
             url: '/connectAgent',
@@ -123,6 +128,7 @@
                             parseMessages.forEach(function(item, i) {
                                 var name = (item.name != '') ? item.name : 'User';
                                 $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
+                                scrollBottom();
                             });
                         }
 
@@ -132,8 +138,15 @@
                             var role = data.role;
                             if(role == 4) {
                                 $('.panel-body').append('<p>' + name + ': ' + message + '</p>');
+                                scrollBottom();
                             }
                             console.log(data);
+                        });
+
+                        socket.on(channel + ':' + role, function(data) {
+                            if(!userId){
+                                $('#connectChat').css({'display': 'block'});
+                            }
                         });
                     }
                 }
@@ -146,30 +159,31 @@
                 url: '/connectAgentUser',
                 success: function(data) {
                     console.log(data);
-                    if(data != 'false') {
-                        userId = (data.userId) ? data.userId : userId;
-                        var agentId = data.agentId;
-                        var response = JSON.parse(data.messages);
-                        response.forEach(function(item, i) {
-                            var name = (item.name != '') ? item.name : 'User';
-                            $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
-                        });
+                    if(data == 'false') {
                         $('#connectChat').css({'display': 'none'});
-                        $('#disconnectChat').css({'display': 'block'});
-                        $('.send-messages-agent').css({'display': 'block'});
+                    }
+                    userId = (data.userId) ? data.userId : userId;
+                    var agentId = data.agentId;
+                    var response = JSON.parse(data.messages);
+                    response.forEach(function(item, i) {
+                        var name = (item.name != '') ? item.name : 'User';
+                        $('.panel-body').append('<p>'+ name + ': ' + item.messages +'</p>');
+                        scrollBottom();
+                    });
+                    $('#connectChat').css({'display': 'none'});
+                    $('#disconnectChat').css({'display': 'block'});
+                    $('.send-messages-agent').css({'display': 'block'});
 
-                        if(userId != '') {
-                            console.log(data);
-                            socket.on(userId + ':' + agentId, function(data) {
-                                var role = data.role;
-                                var name = (data.name != '') ? data.name : 'User';
-                                if(role == 4) {
-                                    $('.panel-body').append('<p>' + name + ': '+data.message+'</p>');
-                                }
-                            });
-                        }
-                    } else {
-                        $('#connectChat').css({'display': 'none'});
+                    if(userId != '') {
+                        console.log(data);
+                        socket.on(userId + ':' + agentId, function(data) {
+                            var role = data.role;
+                            var name = (data.name != '') ? data.name : 'User';
+                            if(role == 4) {
+                                $('.panel-body').append('<p>' + name + ': '+data.message+'</p>');
+                                scrollBottom();
+                            }
+                        });
                     }
                 }
             });
@@ -187,6 +201,7 @@
                     var name = data.name;
                     var message = data.messages;
                     $('.panel-body').append('<p>' + name + ': ' + message + '</p>');
+                    scrollBottom();
                 }
             });
             $('#textMessage').val('');
@@ -198,6 +213,8 @@
                 url: '/disconnectChat',
                 success: function(data) {
                     console.log(data);
+                    var agentId = data.agentId;
+                    socket.removeAllListeners(userId + ':' + agentId);
                     userId = '';
 
                     $('#disconnectChat').css({'display': 'none'});

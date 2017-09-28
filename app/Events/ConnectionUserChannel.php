@@ -21,6 +21,7 @@ class ConnectionUserChannel implements ShouldBroadcast
     public $name;
     public $role;
     public $connect;
+    public $disconnect;
     public $storageInvite;
 
     /**
@@ -37,6 +38,7 @@ class ConnectionUserChannel implements ShouldBroadcast
         $this->messages = isset($data['messages']) ? $data['messages'] : '';
         $this->role = isset($data['role']) ? $data['role'] : 4;
         $this->connect = isset($data['connect']) ? $data['connect'] : '';
+        $this->disconnect = isset($data['disconnect']) ? $data['disconnect'] : '';
         $this->storageInvite = isset($data['storageInvite']) ? $data['storageInvite'] : 'true';
     }
 

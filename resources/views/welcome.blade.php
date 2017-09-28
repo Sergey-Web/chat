@@ -105,6 +105,11 @@
 
                 var socket = io(':3000');
 
+                function scrollBottom() {
+                    var objDiv = document.getElementsByClassName('board-chat');
+                    objDiv[0].scrollTop = objDiv[0].scrollHeight;
+                }
+
                 $.ajax({
                     type: "POST",
                     url: "/connectUser",
@@ -130,8 +135,17 @@
                                 var message = data.message;
                                 if(role == 3) {
                                     $('.board-chat').append('<p>' + name + ': ' + message + '</p>');
+                                    scrollBottom();
                                 }
                             });
+                        });
+
+                        socket.on(userId + ':disconnect', function(data){
+                            console.log(data);
+                            var userId = data.userId;
+                            var agentId = data.agentId;
+
+                            socket.removeAllListeners(userId + ':' + agentId);
                         });
 
                         if(messages && messages != '') {
@@ -139,6 +153,7 @@
                             parseMessages.forEach(function(item, i) {
                                 var name = (item.name != '') ? item.name : 'You';
                                 $('.board-chat').append('<p>'+ name + ': ' + item.messages +'</p>');
+                                scrollBottom();
                             });
                         }
 
@@ -150,6 +165,7 @@
 
                                 if(role == 3) {
                                     $('.board-chat').append('<p>' + nameAgent + ': ' + message + '</p>');
+                                    scrollBottom();
                                 }
                             });
                         }
@@ -170,6 +186,7 @@
                             var message = (data.messages != null) ? data.messages : '';
 
                             $('.board-chat').append('<p>You' + ': ' + message + '</p>');
+                            scrollBottom();
                         }
                     });
                     $('#textMessage').val('');

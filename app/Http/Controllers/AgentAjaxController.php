@@ -88,6 +88,7 @@ class AgentAjaxController extends Controller
     {
         $agentId = Auth::id();
         $data = CheckAgent::getDataAgent($agentId);
+        $data['disconnect'] = TRUE;
         $messages = CheckAgent::getMessages($data['userId']);
 
         //Save a message from the database Mysql
@@ -103,6 +104,8 @@ class AgentAjaxController extends Controller
         if($countInvite > 0) {
             $dataAgent['invitations'] = $countInvite;
         }
+
+        Event::fire( new ConnectionUserChannel($data) );
 
         return $dataAgent;
     }
