@@ -10,16 +10,11 @@ $check = CheckUser::checkIdUser();
 
 class CheckUser extends Model
 {
-    private static $lifetimeId;
-    private static $lifetimeMessage;
-    private static $lifetimeInvitations;
+    private static $lifetimeId = 3600;
+    private static $lifetimeMessage = 3600;
+    private static $lifetimeInvitations = 300;
     private static $userId;
     private static $company;
-
-    public function __construct()
-    {
-        self::
-    }
 
     public static function checkIdUser()
     {
@@ -27,9 +22,8 @@ class CheckUser extends Model
             $_COOKIE['userId'] :
                 self::_assingIdUser();
 
-        self::$lifetimeId = time()+3600; // 1 hour
-        self::$lifetimeMessage = time()+3600; // 1 hour
-        self::$lifetimeInvitations = time()+300; // 5 min
+        self::_timerCookieId($userIdCookie);
+
         self::$company = self::getDomain();
 
         return $userIdCookie;
@@ -159,7 +153,7 @@ class CheckUser extends Model
 
     private static function _timerCookieId($userIdCookie)
     {
-        setcookie('userId', $userIdCookie, self::$lifetimeId);
+        setcookie('userId', $userIdCookie, time() + self::$lifetimeId);
     }
 
     private static function _timerMessages($userId)
