@@ -22,16 +22,9 @@ class CheckUser extends Model
             $_COOKIE['userId'] :
                 self::_assingIdUser();
 
-<<<<<<< HEAD
         self::$company = self::getDomain();
         self::_timerCookieId($userIdCookie);
 
-=======
-        self::_timerCookieId($userIdCookie);
-
-        self::$company = self::getDomain();
-
->>>>>>> b268030504cd959387937aa9c6c4dc2f3c88cb6b
         return $userIdCookie;
     }
 
@@ -159,20 +152,12 @@ class CheckUser extends Model
 
     private static function _timerCookieId($userIdCookie)
     {
-<<<<<<< HEAD
         setcookie('userId', $userIdCookie, time()+self::$lifetimeId);
-=======
-        setcookie('userId', $userIdCookie, time() + self::$lifetimeId);
->>>>>>> b268030504cd959387937aa9c6c4dc2f3c88cb6b
     }
 
     private static function _timerMessages($userId)
     {
-<<<<<<< HEAD
         self::$lifetimeMessage;
-=======
-        return self::$lifetimeMessage;
->>>>>>> b268030504cd959387937aa9c6c4dc2f3c88cb6b
         Redis::command('expire', [$userId . '_messages', self::$lifetimeMessage]);
     }
 
