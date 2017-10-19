@@ -57,7 +57,7 @@ class CheckAgent extends Model
         if($countInvitations == 0) {
             return FALSE;
         } 
-        $lastUser = $invitations[$countInvitations-1];
+        $lastUser = $invitations[count($countInvitations)-1];
         $delInvite = Redis::command('srem', [$company . '_invite', $lastUser]);
 
         return $lastUser;
