@@ -15,8 +15,7 @@
 Auth::routes();
 
 Route::get('/', 'HomeController@startPage')
-    ->name('startPage')
-    ->middleware('checkDomain');
+    ->name('startPage');
 Route::get('/home', 'HomeController@index')
     ->name('home')
     ->middleware('auth');
