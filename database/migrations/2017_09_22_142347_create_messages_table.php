@@ -35,5 +35,6 @@ class CreateMessagesTable extends Migration
             $table->dropForeign(['user_id']);
             $table->dropColumn('user_id');
         });
+        Schema::dropIfExists('messages');
     }
 }
