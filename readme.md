@@ -1,3 +1,13 @@
+______________________________________
+Start prject:
+
+- systemctl start redis
+- composer install
+- php artisan make:migrate --seed
+- npm install socket.io ioredis --save
+- node ws.birdchat/socket.js
+________________________________________
+
 <p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
 <p align="center">
